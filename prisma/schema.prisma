@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  origin    String?
+  interest  String?
+  status    String   @default("NEW")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlogPost {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  content         String
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  status          String   @default("DRAFT")
+  generatedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Settings {
+  id                String   @id @default("global")
+  siteName          String   @default("Sport Health")
+  titleTemplate     String   @default("%s | Sport Health")
+  description       String?
+  contactEmail      String?
+  contactPhone      String?
+  address           String?
+  addressCity       String?
+  addressRegion     String?
+  addressPostalCode String?
+  logoUrl           String?
+  iconUrl           String?
+  instagramUrl      String?
+  whatsappUrl       String?
+  ogImage           String?
+  twitterHandle     String?
+  themeColor        String   @default("#0a4d2c")
+  openaiApiKey      String?
+  updatedAt         DateTime @updatedAt
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  patientName String
+  phone       String
+  date        DateTime
+  time        String
+  duration    Int      @default(60)
+  type        String   @default("AVALIACAO")
+  status      String   @default("SCHEDULED")
+  notes       String?
+  leadId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  description   String
+  amount        Float
+  type          String
+  category      String
+  patientName   String?
+  appointmentId String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
