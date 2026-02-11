@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { X, Calendar as CalendarIcon, MessageCircle, Clock, ArrowLeft } from "lucide-react";
+import { X, Calendar as CalendarIcon, MessageCircle, Clock, ArrowLeft, User, Phone, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const dayNames = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
@@ -63,7 +64,11 @@ interface BookingCalendarModalProps {
 export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalProps) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [step, setStep] = useState<"date" | "time">("date");
+  const [step, setStep] = useState<"date" | "time" | "details">("date");
+  const [formData, setFormData] = useState({ name: "", phone: "" });
+  const [loading, setLoading] = useState(false);
+  
+  const router = useRouter();
 
   const [currentMonth, setCurrentMonth] = useState("");
   const [currentYear, setCurrentYear] = useState(2026);
@@ -82,13 +87,14 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
     setDaysInMonth(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate());
   }, []);
 
-  const whatsappBase = "https://wa.me/5512997150819";
-
   const handleClose = useCallback(() => {
     onClose();
-    setSelectedDay(null);
-    setSelectedTime(null);
-    setStep("date");
+    setTimeout(() => {
+      setSelectedDay(null);
+      setSelectedTime(null);
+      setStep("date");
+      setFormData({ name: "", phone: "" });
+    }, 300);
   }, [onClose]);
 
   useEffect(() => {
@@ -111,19 +117,52 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
   };
 
   const handleBack = () => {
-    setSelectedTime(null);
-    setStep("date");
+    if (step === "time") {
+      setSelectedTime(null);
+      setStep("date");
+    } else if (step === "details") {
+      setStep("time");
+    }
   };
 
-  const handleBooking = () => {
-    const dayStr = selectedDay ? String(selectedDay).padStart(2, "0") : "";
-    const monthStr = String(monthIndex + 1).padStart(2, "0");
-    const timeStr = selectedTime ? ` às ${selectedTime}` : "";
-    const message = selectedDay
-      ? `Olá Dr. Carlos! Gostaria de agendar uma avaliação para o dia ${dayStr}/${monthStr}/${currentYear}${timeStr}. Podemos confirmar?`
-      : `Olá Dr. Carlos! Gostaria de agendar uma avaliação. Qual o melhor horário disponível?`;
+  const confirmTime = () => {
+    if (selectedTime) setStep("details");
+  };
 
-    window.open(`${whatsappBase}?text=${encodeURIComponent(message)}`, "_blank");
+  const handleBooking = async () => {
+    if (!selectedDay || !selectedTime || !formData.name || !formData.phone) return;
+    
+    setLoading(true);
+
+    try {
+      // 1. Criar date object
+      const date = new Date(currentYear, monthIndex, selectedDay);
+      
+      // 2. Enviar para API
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientName: formData.name,
+          phone: formData.phone,
+          date: date.toISOString(),
+          time: selectedTime,
+          type: "AVALIACAO"
+        })
+      });
+
+      if (!res.ok) throw new Error("Erro ao agendar");
+
+      const data = await res.json();
+      
+      // 3. Redirecionar com código
+      router.push(`/agendamento/confirmado?code=${data.accessCode}`);
+      onClose();
+    } catch (error) {
+      alert("Erro ao realizar agendamento. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderCalendarDays = () => {
@@ -185,26 +224,21 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
                 </button>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                    {step === "date" ? <CalendarIcon className="h-6 w-6" /> : <Clock className="h-6 w-6" />}
+                    {step === "date" ? <CalendarIcon className="h-6 w-6" /> : (step === "time" ? <Clock className="h-6 w-6" /> : <User className="h-6 w-6" />)}
                   </div>
                   <div>
                     <h2 className="text-xl md:text-2xl font-bold font-outfit">
-                      {step === "date" ? "Agendar Avaliação" : "Escolher Horário"}
+                      {step === "date" ? "Agendar Avaliação" : (step === "time" ? "Escolher Horário" : "Confirmar Dados")}
                     </h2>
                     <p className="text-white/60 text-sm font-medium">Consulta de 60 min • Presencial</p>
                   </div>
                 </div>
-                <p className="text-white/70 text-sm leading-relaxed">
-                  {step === "date"
-                    ? "Selecione um dia no calendário abaixo."
-                    : `Dia ${selectedDay} de ${currentMonth} — escolha o horário.`}
-                </p>
               </div>
 
               {/* Content */}
               <div className="p-5 md:p-6">
                 <AnimatePresence mode="wait">
-                  {step === "date" ? (
+                  {step === "date" && (
                     <motion.div
                       key="date"
                       initial={{ opacity: 0, x: -20 }}
@@ -225,14 +259,15 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
                         </div>
                       </div>
                     </motion.div>
-                  ) : (
+                  )}
+
+                  {step === "time" && (
                     <motion.div
                       key="time"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
                     >
-                      {/* Back button */}
                       <button
                         onClick={handleBack}
                         className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#0a4d2c] transition-colors mb-4"
@@ -241,20 +276,6 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
                         Voltar ao calendário
                       </button>
 
-                      {/* Selected date summary */}
-                      <div className="px-4 py-3 bg-[#0a4d2c]/5 rounded-xl flex items-center gap-3 mb-5">
-                        <div className="w-10 h-10 rounded-xl bg-[#0a4d2c] text-white flex items-center justify-center font-bold font-outfit">
-                          {selectedDay}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-gray-900">
-                            {selectedDay} de {currentMonth}, {currentYear}
-                          </p>
-                          <p className="text-[11px] text-gray-500">Selecione o horário abaixo</p>
-                        </div>
-                      </div>
-
-                      {/* Time slots grid */}
                       <div className="grid grid-cols-3 gap-2">
                         {timeSlots.map((time) => (
                           <button
@@ -270,23 +291,77 @@ export function BookingCalendarModal({ isOpen, onClose }: BookingCalendarModalPr
                           </button>
                         ))}
                       </div>
+                      
+                      <Button
+                        onClick={confirmTime}
+                        disabled={!selectedTime}
+                        className="w-full mt-6 h-14 font-bold bg-[#0a4d2c] hover:bg-[#0d5c35] text-white rounded-2xl"
+                      >
+                        Continuar
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {step === "details" && (
+                    <motion.div
+                      key="details"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                    >
+                      <button
+                        onClick={handleBack}
+                        className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#0a4d2c] transition-colors mb-6"
+                      >
+                        <ArrowLeft className="h-4 w-4" />
+                        Voltar aos horários
+                      </button>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Nome Completo</label>
+                          <div className="relative">
+                            <User className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                            <input 
+                              type="text" 
+                              value={formData.name}
+                              onChange={e => setFormData({...formData, name: e.target.value})}
+                              placeholder="Seu nome"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:border-[#0a4d2c] outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Telefone (WhatsApp)</label>
+                          <div className="relative">
+                            <Phone className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                            <input 
+                              type="tel" 
+                              value={formData.phone}
+                              onChange={e => setFormData({...formData, phone: e.target.value})}
+                              placeholder="(12) 99999-9999"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:border-[#0a4d2c] outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="bg-[#0a4d2c]/5 p-4 rounded-xl mt-6">
+                           <p className="text-sm font-bold text-[#0a4d2c] mb-1">Resumo do Agendamento:</p>
+                           <p className="text-gray-600 text-sm"> Dia {selectedDay}/{String(monthIndex + 1).padStart(2, '0')} às {selectedTime}</p>
+                        </div>
+
+                        <Button 
+                          onClick={handleBooking}
+                          disabled={!formData.name || !formData.phone || loading}
+                          className="w-full h-14 font-bold bg-[#0a4d2c] hover:bg-[#0d5c35] text-white rounded-2xl shadow-xl mt-4"
+                        >
+                          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirmar Agendamento"}
+                        </Button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* CTA */}
-                {step === "time" && (
-                  <Button
-                    onClick={handleBooking}
-                    disabled={!selectedTime}
-                    className="w-full mt-6 h-14 md:h-16 text-base md:text-lg font-bold font-outfit bg-[#0a4d2c] hover:bg-[#0d5c35] text-white rounded-2xl shadow-xl shadow-[#0a4d2c]/20 hover:scale-[1.02] active:scale-[0.98] transition-all gap-3 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    {selectedTime
-                      ? `Confirmar ${selectedDay}/${String(monthIndex + 1).padStart(2, "0")} às ${selectedTime}`
-                      : "Selecione um horário"}
-                  </Button>
-                )}
               </div>
             </div>
           </motion.div>

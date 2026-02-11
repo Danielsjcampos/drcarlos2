@@ -50,39 +50,8 @@ export function AtletasContent() {
         </div>
       </section>
 
-      <section className="py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {packages.map((pkg, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white border border-gray-100 p-10 rounded-3xl shadow-xl hover:border-[#0a4d2c] transition-all"
-              >
-                <h3 className="text-2xl font-bold font-outfit mb-2">{pkg.title}</h3>
-                <p className="text-gray-500 text-sm mb-8">{pkg.desc}</p>
-                <div className="mb-8">
-                  <span className="text-3xl font-bold font-outfit text-[#0a4d2c]">{pkg.price}</span>
-                </div>
-                <div className="space-y-4 mb-10">
-                  {pkg.features.map(f => (
-                    <div key={f} className="flex gap-3 items-center text-sm font-medium">
-                      <CheckCircle2 className="h-5 w-5 text-[#22c55e]" />
-                      {f}
-                    </div>
-                  ))}
-                </div>
-                <Button className="w-full bg-[#fafafa] border border-gray-200 text-[#1a1a1a] hover:bg-[#0a4d2c] hover:text-white transition-all py-6 font-bold">
-                  Mais Informações
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Seção de Planos removida conforme solicitação */}
+
 
       <section className="py-24 bg-[#fafafa]">
         <div className="container mx-auto px-4 md:px-6">

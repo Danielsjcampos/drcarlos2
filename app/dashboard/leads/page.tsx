@@ -7,6 +7,8 @@ import { Plus, Phone, User, Trash2, X, Mail, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd'
+
 const columns = [
   { id: 'NEW', title: 'Novo' },
   { id: 'CONTACTED', title: 'Contato feito' },
@@ -54,6 +56,15 @@ export default function KanbanPage() {
     })
   }
 
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result
+
+    if (!destination) return
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return
+
+    updateLeadStatus(draggableId, destination.droppableId)
+  }
+
   const handleDelete = async (id: string) => {
     if (!confirm('Deseja excluir este lead?')) return
     await fetch(`/api/leads?id=${id}`, { method: 'DELETE' })
@@ -87,80 +98,89 @@ export default function KanbanPage() {
         </Button>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-8 min-h-[calc(100vh-250px)]">
-        {columns.map((column) => (
-          <div key={column.id} className="w-[320px] shrink-0">
-            <div className="flex items-center justify-between mb-4 px-2">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-gray-700">{column.title}</h3>
-                <span className="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {leads.filter(l => l.status === column.id).length}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-gray-100/50 p-3 rounded-2xl min-h-full flex flex-col gap-3">
-              <AnimatePresence>
-                {leads.filter(l => l.status === column.id).map((lead) => (
-                  <motion.div
-                    key={lead.id}
-                    layoutId={lead.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-[#22c55e] transition-all group"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <Badge variant="secondary" className="bg-[#0a4d2c]/5 text-[#0a4d2c] text-[10px] uppercase font-bold px-2 py-0.5">
-                        {lead.interest}
-                      </Badge>
-                      <span className="text-[9px] text-gray-400 font-medium">
-                        {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                    <h4 className="font-bold text-gray-900 mb-2">{lead.name}</h4>
-                    <div className="flex flex-col gap-1 text-[11px] text-gray-500 mb-4">
-                      <div className="flex items-center gap-1.5">
-                        <Phone className="h-3 w-3" />
-                        {lead.phone}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <User className="h-3 w-3" />
-                        Origem: {lead.origin}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                      <select 
-                        className="text-[10px] font-bold text-[#0a4d2c] bg-transparent outline-none cursor-pointer"
-                        value={lead.status}
-                        onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                      >
-                        {columns.map(c => (
-                          <option key={c.id} value={c.id}>{c.title}</option>
-                        ))}
-                      </select>
-                      <Button 
-                        variant="ghost" size="icon" 
-                        className="h-6 w-6 text-gray-300 hover:text-red-500"
-                        onClick={() => handleDelete(lead.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              
-              {leads.filter(l => l.status === column.id).length === 0 && (
-                <div className="py-12 border-2 border-dashed border-gray-200/50 rounded-xl flex items-center justify-center p-8">
-                  <p className="text-[10px] text-gray-400 font-medium italic">Vazio</p>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex gap-6 overflow-x-auto pb-8 min-h-[calc(100vh-250px)]">
+          {columns.map((column) => (
+            <div key={column.id} className="w-[320px] shrink-0">
+              <div className="flex items-center justify-between mb-4 px-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-gray-700">{column.title}</h3>
+                  <span className="bg-gray-200 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {leads.filter(l => l.status === column.id).length}
+                  </span>
                 </div>
-              )}
+              </div>
+
+              <Droppable droppableId={column.id}>
+                {(provided, snapshot) => (
+                  <div 
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`bg-gray-100/50 p-3 rounded-2xl min-h-[500px] flex flex-col gap-3 transition-colors ${snapshot.isDraggingOver ? 'bg-gray-200/50' : ''}`}
+                  >
+                    {leads
+                      .filter(l => l.status === column.id)
+                      .map((lead, index) => (
+                        <Draggable key={lead.id} draggableId={lead.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-[#22c55e] transition-all group ${snapshot.isDragging ? 'shadow-2xl border-[#22c55e] scale-[1.02]' : ''}`}
+                            >
+                              <div className="flex justify-between items-start mb-2">
+                                <Badge variant="secondary" className="bg-[#0a4d2c]/5 text-[#0a4d2c] text-[10px] uppercase font-bold px-2 py-0.5">
+                                  {lead.interest}
+                                </Badge>
+                                <span className="text-[9px] text-gray-400 font-medium">
+                                  {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
+                                </span>
+                              </div>
+                              <h4 className="font-bold text-gray-900 mb-2">{lead.name}</h4>
+                              <div className="flex flex-col gap-1 text-[11px] text-gray-500 mb-4">
+                                <div className="flex items-center gap-1.5">
+                                  <Phone className="h-3 w-3" />
+                                  {lead.phone}
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <User className="h-3 w-3" />
+                                  Origem: {lead.origin}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                                <span className="text-[10px] font-bold text-[#0a4d2c] uppercase">{column.title}</span>
+                                <Button 
+                                  variant="ghost" size="icon" 
+                                  className="h-6 w-6 text-gray-300 hover:text-red-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(lead.id);
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                    
+                    {leads.filter(l => l.status === column.id).length === 0 && !snapshot.isDraggingOver && (
+                      <div className="py-12 border-2 border-dashed border-gray-200/50 rounded-xl flex items-center justify-center p-8">
+                        <p className="text-[10px] text-gray-400 font-medium italic">Vazio</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </DragDropContext>
+
 
       {/* New Lead Modal */}
       <AnimatePresence>

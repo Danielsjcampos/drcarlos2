@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Menu, X, MessageSquare } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Menu, X, MessageSquare, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookingCalendarModal } from '@/components/ui/booking-calendar'
@@ -12,6 +13,9 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isDarkPage = pathname === '/tratamentos' || pathname === '/servicos-para-atletas'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,7 +38,11 @@ export function Navbar() {
     { name: 'Para Atletas', href: '/servicos-para-atletas' },
     { name: 'Blog', href: '/blog' },
     { name: 'Contato', href: '/contato' },
+    { name: 'Área do Cliente', href: '/cliente/login' },
   ]
+
+  const navTextColor = scrolled ? 'text-gray-700' : (isDarkPage ? 'text-white' : 'text-gray-700')
+  const logoInvert = !scrolled && isDarkPage ? 'brightness-0 invert' : ''
 
   return (
     <>
@@ -42,7 +50,7 @@ export function Navbar() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Sport Health" width={120} height={40} className="h-10 w-auto" priority />
+              <Image src="/logo.svg" alt="Sport Health" width={120} height={40} className={`h-10 w-auto transition-all ${logoInvert}`} priority />
             </Link>
 
             {/* Desktop Nav */}
@@ -51,14 +59,14 @@ export function Navbar() {
                 <Link 
                   key={link.name} 
                   href={link.href} 
-                  className="text-sm font-medium text-gray-700 hover:text-[#0a4d2c] transition-colors"
+                  className={`text-sm font-medium transition-colors hover:text-[#22c55e] ${navTextColor}`}
                 >
                   {link.name}
                 </Link>
               ))}
               <Button
                 onClick={() => setCalendarOpen(true)}
-                className="bg-[#0a4d2c] hover:bg-[#083d23] text-white rounded-full px-6 flex items-center gap-2"
+                className={`${scrolled ? 'bg-[#0a4d2c]' : (isDarkPage ? 'bg-white text-[#0a4d2c] hover:bg-gray-100' : 'bg-[#0a4d2c]')} rounded-full px-6 flex items-center gap-2 transition-all`}
               >
                 <MessageSquare className="h-4 w-4" />
                 Agendar
@@ -66,11 +74,12 @@ export function Navbar() {
             </div>
 
             {/* Mobile Toggle */}
-            <button className="md:hidden text-gray-700" onClick={() => setIsOpen(!isOpen)}>
+            <button className={`md:hidden ${navTextColor}`} onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
+
 
         {/* Mobile Nav */}
         <AnimatePresence>
