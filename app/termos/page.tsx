@@ -14,7 +14,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-[#1a1a1a]">1. Uso de Licença</h2>
             <p>É concedida permissão para baixar temporariamente uma cópia dos materiais (informações ou software) no site Sport Health, apenas para visualização transitória pessoal e não comercial.</p>
             <h2 className="text-2xl font-bold text-[#1a1a1a]">2. Isenção de Responsabilidade</h2>
-            <p>Os materiais no site da Sport Health são fornecidos 'como estão'. Sport Health não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</p>
+            <p>Os materiais no site da Sport Health são fornecidos &apos;como estão&apos;. Sport Health não oferece garantias, expressas ou implícitas, e, por este meio, isenta e nega todas as outras garantias, incluindo, sem limitação, garantias implícitas ou condições de comercialização, adequação a um fim específico ou não violação de propriedade intelectual ou outra violação de direitos.</p>
           </div>
         </div>
       </section>

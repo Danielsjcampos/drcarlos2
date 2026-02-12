@@ -281,7 +281,7 @@ export default function BlogManagementPage() {
                 Dica Estratégica
               </p>
               <p className="text-xs text-emerald-800/70 font-medium leading-relaxed">
-                Adicione keywords com o sufixo "SJC" para dominar as buscas locais por geolocalização.
+                Adicione keywords com o sufixo &quot;SJC&quot; para dominar as buscas locais por geolocalização.
               </p>
             </div>
           </CardContent>

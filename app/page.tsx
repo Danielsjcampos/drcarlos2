@@ -94,7 +94,7 @@ export default function HomePage() {
               <div className="space-y-8">
                 {testimonials.slice(0, 2).map((t, i) => (
                   <div key={i} className="relative pl-8 border-l border-[#22c55e]">
-                    <p className="text-lg italic text-white/90 mb-4 font-inter">"{t.text}"</p>
+                    <p className="text-lg italic text-white/90 mb-4 font-inter">&quot;{t.text}&quot;</p>
                     <div>
                       <p className="font-bold text-white font-outfit">{t.name}</p>
                       <p className="text-xs text-white/50 uppercase tracking-widest">{t.role}</p>

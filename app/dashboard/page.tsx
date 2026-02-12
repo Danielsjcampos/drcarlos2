@@ -189,9 +189,9 @@ export default function DashboardOverview() {
                  </div>
                  Growth Engine IA
                </h4>
-               <p className="text-base md:text-lg text-slate-600 leading-relaxed font-bold italic relative z-10">
-                 "A busca por <span className="text-emerald-600 underline decoration-emerald-500/30 underline-offset-4">Mobilidade Articular</span> cresceu 42% em SJC. Gerar artigo sobre 'Prevenção de Lesões em Atletas'?"
-               </p>
+                <p className="text-base md:text-lg text-slate-600 leading-relaxed font-bold italic relative z-10">
+                  &quot;A busca por <span className="text-emerald-600 underline decoration-emerald-500/30 underline-offset-4">Mobilidade Articular</span> cresceu 42% em SJC. Gerar artigo sobre &apos;Prevenção de Lesões em Atletas&apos;?&quot;
+                </p>
                <div className="mt-8 relative z-10">
                   <Button className="w-full bg-white hover:bg-slate-50 text-emerald-700 font-black rounded-xl md:rounded-2xl h-14 shadow-md border-none transition-all hover:-translate-y-1 text-sm">
                     Executar Automação de Conteúdo
