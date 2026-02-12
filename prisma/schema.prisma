@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,16 +17,34 @@ model User {
 }
 
 model Lead {
+  id           String        @id @default(cuid())
+  accessCode   String?       @unique @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  origin       String?
+  interest     String?
+  status       String        @default("NEW")
+  
+  // Patient Details
+  birthDate    DateTime?
+  gender       String?
+  occupation   String?
+  painHistory  String?
+  medicalHistory String?
+  photos       String[]      @default([])
+  
+  appointments Appointment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  notes        String?
+}
+
+model BlockedSlot {
   id        String   @id @default(cuid())
-  name      String
-  phone     String
-  email     String?
-  origin    String?
-  interest  String?
-  status    String   @default("NEW")
-  notes     String?
+  dayOfWeek Int      // 0-6
+  time      String   // "HH:mm"
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model BlogPost {
@@ -41,9 +56,19 @@ model BlogPost {
   metaDescription String?
   keywords        String[]
   status          String   @default("DRAFT")
+  imageUrl        String?
+  audioUrl        String?
   generatedAt     DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model BlogKeyword {
+  id        String   @id @default(cuid())
+  term      String   @unique
+  status    String   @default("PENDING") // PENDING, GENERATING, COMPLETED, FAILED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Settings {
@@ -64,6 +89,45 @@ model Settings {
   ogImage           String?
   twitterHandle     String?
   themeColor        String   @default("#0a4d2c")
-  openaiApiKey      String?
   updatedAt         DateTime @updatedAt
+  openaiApiKey      String?
+  
+  // Google Calendar Integration
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  BigInt?
+  
+  // Google OAuth Configuration (moved from env)
+  googleClientId     String?
+  googleClientSecret String?
+  googleRedirectUri  String?
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  patientName String
+  phone       String
+  date        DateTime
+  time        String
+  duration    Int      @default(60)
+  type        String   @default("AVALIACAO")
+  status      String   @default("SCHEDULED")
+  notes       String?
+  leadId      String?
+  lead        Lead?    @relation(fields: [leadId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  description   String
+  amount        Float
+  type          String
+  category      String
+  patientName   String?
+  appointmentId String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

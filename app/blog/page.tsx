@@ -1,41 +1,46 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BlogListingContent } from '@/components/sections/BlogListingContent'
+import { Loader2 } from 'lucide-react'
 
 export default function BlogListingPage() {
-  const posts = [
-    { 
-      id: '1', 
-      title: '5 Dicas para Aliviar Dor Lombar em SJC', 
-      excerpt: 'Muitos pacientes sofrem com dor lombar crônica. Neste artigo, o Dr. Carlos compartilha dicas práticas para o dia a dia.',
-      date: '10 Fev, 2026',
-      author: 'Dr. Carlos Prado',
-      slug: 'dicas-dor-lombar-sjc'
-    },
-    { 
-      id: '2', 
-      title: 'Como a Fisioterapia Esportiva Acelera o Recovery', 
-      excerpt: 'Se você é atleta amador ou profissional, entenda como o recovery especializado pode mudar sua performance.',
-      date: '08 Fev, 2026',
-      author: 'Dr. Carlos Prado',
-      slug: 'recovery-esportivo-fisioterapia'
-    },
-    { 
-      id: '3', 
-      title: 'A Importância da Avaliação Funcional antes de Começar a Correr', 
-      excerpt: 'Evite lesões comuns de corrida com uma avaliação biomecânica completa.',
-      date: '05 Fev, 2026',
-      author: 'Dr. Carlos Prado',
-      slug: 'avaliacao-funcional-corrida'
-    },
-  ]
+  const [posts, setPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/blog/public')
+      .then(r => r.json())
+      .then(data => {
+        // Map data to match Post interface if needed
+        const mappedPosts = Array.isArray(data) ? data.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          excerpt: p.metaDescription || p.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...',
+          date: new Date(p.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
+          author: 'Dr. Carlos Prado',
+          slug: p.slug,
+          imageUrl: p.imageUrl
+        })) : []
+        setPosts(mappedPosts)
+      })
+      .catch(err => console.error('Failed to fetch posts'))
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
 
-      <BlogListingContent posts={posts} />
+      {loading ? (
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Loader2 className="h-10 w-10 text-emerald-500 animate-spin" />
+        </div>
+      ) : (
+        <BlogListingContent posts={posts} />
+      )}
 
       <Footer />
     </div>

@@ -9,17 +9,29 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   
+  const siteName = settings?.siteName || "Sport Health";
+  const titleTemplate = settings?.titleTemplate || `%s | ${siteName}`;
+  const description = settings?.description || "Fisioterapia Esportiva SJC - Dr. Carlos Prado";
+
   return {
-    title: settings?.siteName || "Sport Health | Dr. Carlos Prado",
-    description: settings?.description || "Fisioterapia Esportiva SJC",
+    title: {
+      default: siteName,
+      template: titleTemplate,
+    },
+    description: description,
     openGraph: {
       images: settings?.ogImage ? [settings.ogImage] : [],
+      title: siteName,
+      description: description,
     },
     twitter: {
       card: 'summary_large_image',
       site: settings?.twitterHandle || '',
+      title: siteName,
+      description: description,
     },
     themeColor: settings?.themeColor || '#0a4d2c',
+    icons: settings?.iconUrl ? [settings.iconUrl] : []
   };
 }
 

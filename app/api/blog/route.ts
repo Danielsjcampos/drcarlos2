@@ -66,10 +66,15 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json()
-    const { id, ...data } = body
+    const { id, title, content, status, imageUrl } = body
     const post = await prisma.blogPost.update({
       where: { id },
-      data
+      data: {
+        title,
+        content,
+        status,
+        imageUrl
+      }
     })
     return NextResponse.json(post)
   } catch (error) {

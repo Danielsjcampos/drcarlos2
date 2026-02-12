@@ -2,10 +2,12 @@ import React from 'react'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { HeroSection } from '@/components/sections/HeroSection'
+import { RecentPostsCarousel } from '@/components/sections/RecentPostsCarousel'
 import { TreatmentsSection } from '@/components/sections/TreatmentsSection'
 import { ContactForm } from '@/components/sections/ContactForm'
-import { Star, MessageCircle, Zap, Target, Award, ShieldCheck } from 'lucide-react'
+import { Star, Zap, Target, Award, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { WhatsAppCTAButton } from '@/components/ui/whatsapp-cta-button'
 
 export default function HomePage() {
   const benefits = [
@@ -56,6 +58,8 @@ export default function HomePage() {
 
       <TreatmentsSection />
 
+      <RecentPostsCarousel />
+
       {/* Proposta de Valor */}
       <section className="py-24 bg-[#0a4d2c] text-white relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
@@ -98,10 +102,7 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-10 bg-[#22c55e] hover:bg-[#1db954] text-[#0a4d2c] font-bold py-8 rounded-2xl text-lg">
-                Agende pelo WhatsApp
-                <MessageCircle className="ml-2 h-6 w-6" />
-              </Button>
+              <WhatsAppCTAButton />
             </div>
           </div>
         </div>

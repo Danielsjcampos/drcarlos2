@@ -14,6 +14,7 @@ interface Post {
     date: string
     author: string
     slug: string
+    imageUrl?: string
 }
 
 interface BlogListingContentProps {
@@ -47,10 +48,14 @@ export function BlogListingContent({ posts }: BlogListingContentProps) {
                     <CardContent className="p-0">
                       <div className="flex flex-col md:flex-row gap-8">
                         <div className="md:w-1/3 aspect-square md:aspect-auto bg-gray-100 rounded-3xl overflow-hidden relative group">
+                          {post.imageUrl ? (
+                            <img src={post.imageUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={post.title} />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                               <Activity className="h-12 w-12 opacity-20" />
+                            </div>
+                          )}
                           <div className="absolute inset-0 bg-[#0a4d2c]/10 mix-blend-multiply opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                             <Activity className="h-12 w-12 opacity-20" />
-                          </div>
                         </div>
                         <div className="md:w-2/3 py-2">
                           <div className="flex items-center gap-4 text-xs font-bold text-[#0a4d2c] uppercase tracking-widest mb-4">

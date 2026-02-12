@@ -65,6 +65,10 @@
                       radial-gradient(at 100% 100%, hsla(180, 100%, 50%, 0.05) 0px, transparent 50%),
                       radial-gradient(at 0% 100%, hsla(153, 100%, 12%, 0.1) 0px, transparent 50%);
   }
+  .bg-stripe-gray {
+    background-color: #f8fafc;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.03) 10px, rgba(0,0,0,0.03) 20px);
+  }
 }
 
 @layer base {

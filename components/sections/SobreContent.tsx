@@ -46,14 +46,12 @@ export function SobreContent() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="aspect-[4/5] bg-gray-200 rounded-3xl overflow-hidden shadow-2xl relative z-10">
-                <div className="absolute inset-0 bg-[#0a4d2c]/5 mix-blend-multiply"></div>
-                <div className="w-full h-full flex items-center justify-center text-gray-400 p-12 text-center">
-                  <div>
-                    <Activity className="h-16 w-16 mx-auto mb-4 opacity-20" />
-                    <p className="font-outfit font-bold">Foto do Dr. Carlos Prado em ambiente clínico</p>
-                  </div>
-                </div>
+              <div className="aspect-[4/5] bg-gray-100 rounded-3xl overflow-hidden shadow-2xl relative z-10">
+                <img 
+                  src="/dr-carlos.png" 
+                  alt="Dr. Carlos Prado - Fisioterapeuta Esportivo" 
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
               <div className="absolute -z-10 -bottom-10 -right-10 w-full h-full bg-[#0a4d2c]/5 rounded-3xl"></div>
             </motion.div>

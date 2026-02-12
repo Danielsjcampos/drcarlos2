@@ -4,6 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { Star, ChevronRight, Target, ShieldCheck, Activity } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 export function HeroSection() {
   return (
@@ -33,7 +34,10 @@ export function HeroSection() {
               Recuperação inteligente para atletas e pacientes que buscam o mais alto padrão em fisioterapia esportiva e ortopédica em São José dos Campos.
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
-              <Button className="bg-[#0a4d2c] hover:bg-[#0d5c35] text-white rounded-2xl py-8 px-10 text-lg font-bold group shadow-2xl shadow-[#0a4d2c]/30 border-t border-white/10 transition-all hover:scale-105 active:scale-95">
+              <Button
+                onClick={() => window.dispatchEvent(new CustomEvent('open-booking'))}
+                className="bg-[#0a4d2c] hover:bg-[#0d5c35] text-white rounded-2xl py-8 px-10 text-lg font-bold group shadow-2xl shadow-[#0a4d2c]/30 border-t border-white/10 transition-all hover:scale-105 active:scale-95"
+              >
                 Agendar Avaliação
                 <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -70,10 +74,13 @@ export function HeroSection() {
           >
             <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] z-10 border-8 border-white group">
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a4d2c]/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-700"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1576091160550-217359f4ecf8?auto=format&fit=crop&q=80&w=1000" 
+              <Image 
+                src="/dr-carlos.png"
                 alt="Dr. Carlos Prado" 
-                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                fill
+                className="object-cover object-top transition-transform duration-1000 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
               />
               <div className="absolute bottom-8 left-8 right-8 p-6 glass rounded-2xl z-20">
                 <div className="flex items-center gap-4">
