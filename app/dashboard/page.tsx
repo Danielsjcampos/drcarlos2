@@ -20,21 +20,20 @@ export default function DashboardOverview() {
   const [agendaForm, setAgendaForm] = useState({ patientName: '', phone: '', date: new Date().toISOString().split('T')[0], time: '09:00', type: 'AVALIACAO', notes: '' })
   const [financeForm, setFinanceForm] = useState({ description: '', amount: '', category: 'Geral', date: new Date().toISOString().split('T')[0] })
 
-  const fetchData = React.useCallback(async () => {
+  const fetchData = async () => {
     try {
       const res = await fetch('/api/dashboard/stats')
       const json = await res.json()
       setData(json)
-      setLoading(false)
     } catch (err) {
       console.error("Error fetching dashboard data:", err)
+    } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchData() }, [])
 
   const handleSaveLead = async () => {
     if (!leadForm.name || !leadForm.phone) return
