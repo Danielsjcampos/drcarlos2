@@ -13,25 +13,27 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const timeSlots = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
 const dayNames = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB']
 const typeLabels: Record<string, string> = {
   AVALIACAO: 'Avaliação',
   RETORNO: 'Retorno',
   TRATAMENTO: 'Tratamento',
   CONSULTA: 'Consulta',
+  BLOCK: 'Indisponível',
 }
 const statusColors: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 text-blue-700',
   CONFIRMED: 'bg-emerald-100 text-emerald-700',
   COMPLETED: 'bg-gray-100 text-gray-600',
   CANCELLED: 'bg-red-100 text-red-600',
+  BLOCK: 'bg-slate-200 text-slate-600',
 }
 const statusLabels: Record<string, string> = {
   SCHEDULED: 'Agendado',
   CONFIRMED: 'Confirmado',
   COMPLETED: 'Concluído',
   CANCELLED: 'Cancelado',
+  BLOCK: 'Bloqueado',
 }
 
 interface Appointment {
@@ -44,26 +46,47 @@ interface Appointment {
   type: string
   status: string
   notes?: string
+  leadId?: string
 }
 
 export default function AgendaPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [blockedSlots, setBlockedSlots] = useState<any[]>([])
+  const [patients, setPatients] = useState<any[]>([])
+  const [settings, setSettings] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
   const [blockMode, setBlockMode] = useState(false)
   const [form, setForm] = useState<any>({
-    id: null, patientName: '', phone: '', date: '', time: '09:00', type: 'AVALIACAO', notes: ''
+    id: null, patientName: '', phone: '', date: '', time: '09:00', type: 'AVALIACAO', notes: '', leadId: null
   })
+  const [patientSearch, setPatientSearch] = useState('')
+
+  // Dynamic time slots based on settings
+  const timeSlots = React.useMemo(() => {
+    const slots = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+    
+    const startH = parseInt((settings?.workingStart || '08:00').split(':')[0])
+    const endH = parseInt((settings?.workingEnd || '19:00').split(':')[0])
+
+    return slots.filter(time => {
+      const h = parseInt(time.split(':')[0])
+      return h >= startH && h < endH
+    })
+  }, [settings])
 
   const fetchAppointments = () => {
     Promise.all([
       fetch('/api/appointments').then(r => r.json()),
-      fetch('/api/agenda/block').then(r => r.json())
-    ]).then(([apps, blocked]) => {
+      fetch('/api/agenda/block').then(r => r.json()),
+      fetch('/api/settings').then(r => r.json()),
+      fetch('/api/patients').then(r => r.json())
+    ]).then(([apps, blocked, sett, pat]) => {
       setAppointments(Array.isArray(apps) ? apps : [])
       setBlockedSlots(Array.isArray(blocked) ? blocked : [])
+      setSettings(sett)
+      setPatients(Array.isArray(pat) ? pat : [])
       setLoading(false)
     }).catch(() => setLoading(false))
   }
@@ -111,7 +134,8 @@ export default function AgendaPage() {
         date: dayStr,
         time: app.time,
         type: app.type,
-        notes: app.notes || ''
+        notes: app.notes || '',
+        leadId: app.leadId || null
       })
     } else {
       setForm({
@@ -121,7 +145,8 @@ export default function AgendaPage() {
         date: dayStr,
         time: time,
         type: 'AVALIACAO',
-        notes: ''
+        notes: '',
+        leadId: null
       })
     }
     setShowModal(true)
@@ -150,7 +175,7 @@ export default function AgendaPage() {
       body: JSON.stringify(form)
     })
     setShowModal(false)
-    setForm({ id: null, patientName: '', phone: '', date: '', time: '09:00', type: 'AVALIACAO', notes: '' })
+    setForm({ id: null, patientName: '', phone: '', date: '', time: '09:00', type: 'AVALIACAO', notes: '', leadId: null })
     fetchAppointments()
   }
 
@@ -338,10 +363,33 @@ export default function AgendaPage() {
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <input
-                        type="text" placeholder="Nome do paciente"
+                        type="text" placeholder="Buscar paciente..."
                         className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0a4d2c]/10 focus:border-[#0a4d2c] outline-none"
-                        value={form.patientName} onChange={e => setForm({ ...form, patientName: e.target.value })}
+                        value={form.patientName} 
+                        onChange={e => {
+                          setForm({ ...form, patientName: e.target.value })
+                          setPatientSearch(e.target.value)
+                        }}
                       />
+                      {patientSearch && patients.filter(p => p.name.toLowerCase().includes(patientSearch.toLowerCase())).length > 0 && (
+                        <div className="absolute z-[110] left-0 right-0 top-full mt-1 bg-white border border-slate-100 rounded-xl shadow-xl max-h-48 overflow-auto">
+                          {patients
+                            .filter(p => p.name.toLowerCase().includes(patientSearch.toLowerCase()))
+                            .map(p => (
+                              <button
+                                key={p.id}
+                                className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-50 last:border-none flex justify-between items-center"
+                                onClick={() => {
+                                  setForm({ ...form, patientName: p.name, phone: p.phone || '', leadId: p.id })
+                                  setPatientSearch('')
+                                }}
+                              >
+                                <span className="text-sm font-bold text-slate-700">{p.name}</span>
+                                <span className="text-[10px] text-slate-400 font-mono">{p.phone}</span>
+                              </button>
+                            ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div>

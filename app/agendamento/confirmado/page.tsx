@@ -1,7 +1,7 @@
 'use client'
 
 import React, { Suspense } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { CheckCircle2, Copy, ArrowRight, CalendarCheck, Sparkles } from 'lucide-react'

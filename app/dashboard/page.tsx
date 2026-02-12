@@ -4,39 +4,90 @@ import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, FileText, Calendar as CalendarIcon, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Target, Activity, Settings, Zap, Compass, Star } from 'lucide-react'
+import { Users, FileText, Calendar as CalendarIcon, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Target, Activity, Settings, Zap, Compass, Star, X, DollarSign, TrendingDown } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 export default function DashboardOverview() {
-  const [stats, setStats] = useState({
-    totalLeads: 0,
-    newLeads: 0,
-    totalPosts: 0,
-  })
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [showLeadModal, setShowLeadModal] = useState(false)
+  const [showAgendaModal, setShowAgendaModal] = useState(false)
+  const [showFinanceModal, setShowFinanceModal] = useState<{show: boolean, type: 'INCOME' | 'EXPENSE'}>({ show: false, type: 'INCOME' })
+  
+  const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', interest: 'Geral', origin: 'Dashboard' })
+  const [agendaForm, setAgendaForm] = useState({ patientName: '', phone: '', date: new Date().toISOString().split('T')[0], time: '09:00', type: 'AVALIACAO', notes: '' })
+  const [financeForm, setFinanceForm] = useState({ description: '', amount: '', category: 'Geral', date: new Date().toISOString().split('T')[0] })
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch('/api/dashboard/stats')
+      const json = await res.json()
+      setData(json)
+      setLoading(false)
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err)
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/leads').then(r => r.json()),
-      fetch('/api/blog').then(r => r.json())
-    ]).then(([leads, posts]) => {
-      setStats({
-        totalLeads: Array.isArray(leads) ? leads.length : 0,
-        newLeads: Array.isArray(leads) ? leads.filter((l: any) => l.status === 'NEW').length : 0,
-        totalPosts: Array.isArray(posts) ? posts.length : 0
-      })
-    }).catch(err => console.error("Error fetching stats:", err));
+    fetchData()
   }, [])
+
+  const handleSaveLead = async () => {
+    if (!leadForm.name || !leadForm.phone) return
+    await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadForm)
+    })
+    setShowLeadModal(false)
+    setLeadForm({ name: '', phone: '', email: '', interest: 'Geral', origin: 'Dashboard' })
+    fetchData()
+  }
+
+  const handleSaveAppointment = async () => {
+    if (!agendaForm.patientName || !agendaForm.phone) return
+    await fetch('/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(agendaForm)
+    })
+    setShowAgendaModal(false)
+    setAgendaForm({ patientName: '', phone: '', date: new Date().toISOString().split('T')[0], time: '09:00', type: 'AVALIACAO', notes: '' })
+    fetchData()
+  }
+
+  const handleSaveFinance = async () => {
+    if (!financeForm.description || !financeForm.amount) return
+    await fetch('/api/financeiro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...financeForm, type: showFinanceModal.type })
+    })
+    setShowFinanceModal({ show: false, type: 'INCOME' })
+    setFinanceForm({ description: '', amount: '', category: 'Geral', date: new Date().toISOString().split('T')[0] })
+    fetchData()
+  }
+
+  if (loading) return (
+    <DashboardLayout>
+      <div className="h-full flex items-center justify-center">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full" />
+      </div>
+    </DashboardLayout>
+  )
 
   return (
     <DashboardLayout>
-      {/* Welcome Section with Hero Vibes */}
-      <div className="relative mb-14">
+      {/* Welcome & Quick Actions Section */}
+      <div className="flex flex-col xl:flex-row justify-between items-start gap-10 mb-14">
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10"
+          className="relative z-10 flex-1"
         >
           <div className="flex items-center gap-3 mb-3">
              <div className="h-2 w-12 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
@@ -47,27 +98,56 @@ export default function DashboardOverview() {
           </h1>
           <p className="text-slate-500 font-bold max-w-xl text-base md:text-lg leading-relaxed">
             Bem-vindo de volta, Dr. Carlos. <br className="hidden md:block" /> 
-            Sua clínica está operando com <span className="text-emerald-600 font-black uppercase text-sm tracking-widest">84% de eficiência</span> hoje.
+            Sua clínica está operando com <span className="text-emerald-600 font-black uppercase text-sm tracking-widest">{data?.stats.conversionRate > 20 ? 'Alta' : 'Normal'} Eficiência</span> hoje.
           </p>
         </motion.div>
-        
-        {/* Floating 3D-like Orb Background Decor */}
-        <div className="absolute top-[-20px] right-20 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700" />
+
+        {/* Quick Access Buttons */}
+        <div className="flex flex-wrap gap-4 w-full xl:w-auto">
+          <Button 
+            onClick={() => setShowFinanceModal({ show: true, type: 'INCOME' })}
+            className="flex-1 sm:flex-none h-14 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl px-6 shadow-xl shadow-blue-500/10 gap-2 hover:-translate-y-1 transition-all"
+          >
+            <DollarSign className="h-4 w-4" />
+            Receita
+          </Button>
+          <Button 
+            onClick={() => setShowFinanceModal({ show: true, type: 'EXPENSE' })}
+            className="flex-1 sm:flex-none h-14 bg-red-500 hover:bg-red-600 text-white font-black rounded-2xl px-6 shadow-xl shadow-red-500/10 gap-2 hover:-translate-y-1 transition-all"
+          >
+            <TrendingDown className="h-4 w-4" />
+            Despesa
+          </Button>
+          <Button 
+            onClick={() => setShowLeadModal(true)}
+            className="flex-1 sm:flex-none h-14 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl px-6 shadow-xl shadow-emerald-500/20 gap-2 hover:-translate-y-1 transition-all"
+          >
+            <Users className="h-4 w-4" />
+            Paciente
+          </Button>
+          <Button 
+            onClick={() => setShowAgendaModal(true)}
+            className="flex-1 sm:flex-none h-14 bg-[#0a4d2c] hover:bg-[#083d23] text-white font-black rounded-2xl px-6 shadow-xl shadow-emerald-950/20 gap-2 hover:-translate-y-1 transition-all"
+          >
+            <CalendarIcon className="h-4 w-4" />
+            Agenda
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Grid - High Impact Cards */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
         <StatCard 
           title="Leads Totais" 
-          value={stats.totalLeads.toString()} 
-          change="+18% este mês" 
+          value={data?.stats.totalLeads.toString()} 
+          change={`${data?.stats.newLeads} novos`} 
           icon={<Users className="h-6 w-6" />} 
           variant="primary"
           delay={0.1}
         />
         <StatCard 
           title="Posts Gerados" 
-          value={stats.totalPosts.toString()} 
+          value={data?.stats.totalPosts.toString()} 
           change="IA Ativa" 
           icon={<Zap className="h-6 w-6" />} 
           variant="accent"
@@ -75,7 +155,7 @@ export default function DashboardOverview() {
         />
         <StatCard 
           title="Taxa de Conversão" 
-          value="24.8%" 
+          value={`${data?.stats.conversionRate}%`} 
           change="+2.4% vs média" 
           icon={<Target className="h-6 w-6" />} 
           variant="white"
@@ -83,123 +163,228 @@ export default function DashboardOverview() {
         />
       </div>
 
+      {/* Main Grid: Appointments & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-         {/* Live Activity Board */}
-         <Card className="lg:col-span-12 xl:col-span-7 rounded-[40px] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white/70 backdrop-blur-xl border border-white/40">
-            <CardHeader className="p-6 md:p-10 border-b border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+         {/* Today's Appointments Section */}
+         <Card className="lg:col-span-12 xl:col-span-8 rounded-[40px] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white/70 backdrop-blur-xl border border-white/40">
+            <CardHeader className="p-8 md:p-10 border-b border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <Activity className="h-4 w-4 text-emerald-500" />
-                    <CardTitle className="text-xl md:text-2xl font-black font-outfit tracking-tight">Atividade Recente</CardTitle>
+                    <CalendarIcon className="h-4 w-4 text-emerald-500" />
+                    <CardTitle className="text-xl md:text-2xl font-black font-outfit tracking-tight">Consultas do Dia</CardTitle>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">O que aconteceu nas últimas 24h</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Seus horários agendados para hoje</p>
                </div>
-               <Badge className="px-4 py-1.5 md:px-5 md:py-2 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 animate-pulse">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Live Now
+               <Badge className="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                  {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })}
                </Badge>
             </CardHeader>
             <CardContent className="p-0">
-               <div className="divide-y divide-slate-50">
-                  <ActivityItem 
-                    title="Novo Lead Capturado" 
-                    desc="João Silva se interessou por 'Quiropraxia Avançada'" 
-                    time="há 5m" 
-                    type="NEW_LEAD"
-                  />
-                  <ActivityItem 
-                    title="Newsletter de IA" 
-                    desc="Processo finalizado: 12 artigos criados via GPT-4" 
-                    time="há 2h" 
-                    type="POST"
-                  />
-                  <ActivityItem 
-                    title="Relatório Financeiro" 
-                    desc="Download do PDF mensal realizado com sucesso" 
-                    time="há 4h" 
-                    type="SETTING"
-                  />
-                  <ActivityItem 
-                    title="Status de Pipeline" 
-                    desc="Maria Santos movida para 'Agendamento Confirmado'" 
-                    time="há 1d" 
-                    type="NEW_LEAD"
-                  />
-               </div>
-               <div className="p-8 bg-slate-50/50 flex justify-center border-t border-slate-50">
-                  <button className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-2 group">
-                    Ver todo histórico de logs
-                    <ArrowUpRight className="h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  </button>
+               <div className="overflow-x-auto">
+                 <table className="w-full text-left">
+                    <thead>
+                       <tr className="bg-slate-50/50 border-b border-slate-100">
+                          <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Hora</th>
+                          <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Paciente</th>
+                          <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipo</th>
+                          <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                       </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                       {data?.todayAppointments?.length > 0 ? (
+                         data.todayAppointments.map((app: any, i: number) => (
+                           <tr key={i} className="hover:bg-slate-50/50 transition-colors group cursor-default">
+                              <td className="px-8 py-6">
+                                 <div className="flex items-center gap-2">
+                                    <Clock className="h-3 w-3 text-emerald-500" />
+                                    <span className="text-sm font-black font-outfit text-slate-700 tracking-tight">{app.time}</span>
+                                 </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                 <div className="flex items-center justify-between gap-4">
+                                   <div>
+                                     <p className="text-sm font-black text-slate-800 tracking-tight leading-none group-hover:text-emerald-700 transition-colors uppercase">{app.patientName}</p>
+                                     <p className="text-[10px] text-slate-400 font-bold mt-1 tracking-wider">{app.phone}</p>
+                                   </div>
+                                   {app.lead?.accessCode && (
+                                     <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[8px] px-2 py-0.5 rounded-lg shrink-0">
+                                       PIN: {app.lead.accessCode}
+                                     </Badge>
+                                   )}
+                                 </div>
+                              </td>
+                              <td className="px-8 py-6">
+                                 <Badge variant="outline" className="bg-white border-slate-200 text-slate-500 text-[9px] font-black px-3 rounded-lg">
+                                    {app.type}
+                                 </Badge>
+                              </td>
+                              <td className="px-8 py-6">
+                                 <div className="flex items-center gap-2">
+                                    <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", app.status === 'CONFIRMED' ? 'bg-emerald-500' : 'bg-blue-500')} />
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{app.status}</span>
+                                 </div>
+                              </td>
+                           </tr>
+                         ))
+                       ) : (
+                         <tr>
+                            <td colSpan={4} className="px-8 py-20 text-center">
+                               <CalendarIcon className="h-10 w-10 text-slate-100 mx-auto mb-4" />
+                               <p className="text-[11px] font-black text-slate-300 uppercase tracking-widest">Nenhuma consulta agendada para hoje</p>
+                            </td>
+                         </tr>
+                       )}
+                    </tbody>
+                 </table>
                </div>
             </CardContent>
          </Card>
 
-         {/* Growth & Insights Panel */}
-         <div className="lg:col-span-12 xl:col-span-5 space-y-10">
-            {/* SEO Mastery Card */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="rounded-[32px] md:rounded-[40px] bg-[#0a4d2c] text-white p-8 md:p-12 relative overflow-hidden shadow-2xl shadow-emerald-950/20 group"
-            >
-               {/* Background Mesh/Aura */}
-               <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-125 transition-transform duration-1000">
-                  <Compass className="h-48 w-48 md:h-64 md:w-64" />
-               </div>
-               
-               <div className="relative z-10 flex flex-col h-full min-h-[300px] md:min-h-[350px]">
-                  <div>
-                    <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/20 font-black text-[10px] uppercase space-x-2 px-3 py-1.5 rounded-xl mb-6 md:mb-8">
-                       <Star className="w-3 h-3 fill-emerald-400" />
-                       <span>#1 SJC - Fisioterapia</span>
-                    </Badge>
-                    <h3 className="text-3xl md:text-4xl font-black font-outfit leading-[1.1] mb-6 tracking-tight">SEO Domina<br />a Região.</h3>
-                    <p className="text-emerald-100/60 text-base md:text-lg font-medium leading-relaxed max-w-xs">
-                       Sua clínica continua sendo a principal referência em fisioterapia esportiva local.
-                    </p>
+         {/* Right Sidebar: Recents & Insights */}
+         <div className="lg:col-span-12 xl:col-span-4 space-y-10">
+            {/* Live Activity Board */}
+            <Card className="rounded-[40px] border-none shadow-2xl shadow-slate-200/50 overflow-hidden bg-white/70 backdrop-blur-xl border border-white/40">
+               <CardHeader className="p-8 border-b border-slate-50">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Activity className="h-4 w-4 text-emerald-500" />
+                        <CardTitle className="text-xl font-black font-outfit tracking-tight">Atividade</CardTitle>
+                      </div>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">Últimas 24h</p>
+                    </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4 md:gap-5 mt-auto pt-8 md:pt-10">
-                     <div className="bg-white/5 backdrop-blur-xl rounded-[20px] md:rounded-[24px] p-4 md:p-6 border border-white/5 transition-all hover:bg-white/10 group/item">
-                        <p className="text-[10px] uppercase font-black text-white/30 mb-2 tracking-[0.2em]">Visitas/mês</p>
-                        <div className="flex items-end gap-2">
-                           <p className="text-2xl md:text-3xl font-black font-outfit tracking-tighter">1,420</p>
-                           <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5 text-emerald-400 mb-1 opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                        </div>
-                     </div>
-                     <div className="bg-white/5 backdrop-blur-xl rounded-[20px] md:rounded-[24px] p-4 md:p-6 border border-white/5 transition-all hover:bg-white/10 group/item">
-                        <p className="text-[10px] uppercase font-black text-white/30 mb-2 tracking-[0.2em]">CTR Médio</p>
-                        <div className="flex items-end gap-2">
-                           <p className="text-2xl md:text-3xl font-black font-outfit tracking-tighter">8.4%</p>
-                           <ArrowUpRight className="h-4 w-4 md:h-5 md:w-5 text-emerald-400 mb-1 opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                        </div>
-                     </div>
+               </CardHeader>
+               <CardContent className="p-0">
+                  <div className="divide-y divide-slate-50">
+                     {data?.activities.map((act: any) => (
+                       <ActivitySmallItem 
+                        key={act.id}
+                        title={act.title} 
+                        desc={act.desc} 
+                        time={new Date(act.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} 
+                        type={act.type}
+                       />
+                     ))}
                   </div>
-               </div>
-            </motion.div>
+                  <div className="p-6 bg-slate-50/50 flex justify-center border-t border-slate-50">
+                     <button className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 hover:text-emerald-600 transition-colors flex items-center gap-2">
+                       Ver tudo
+                       <ArrowUpRight className="h-3 w-3" />
+                     </button>
+                  </div>
+               </CardContent>
+            </Card>
 
-            {/* Growth Suggestion Card */}
-            <Card className="rounded-[32px] md:rounded-[40px] border-none p-8 md:p-12 shadow-xl bg-emerald-50/80 border border-emerald-100 overflow-hidden relative">
+            {/* Growth Suggestion Card (AI Insights) */}
+            <Card className="rounded-[40px] border-none p-10 shadow-xl bg-emerald-50/80 border border-emerald-100 overflow-hidden relative">
                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200/40 rounded-full blur-[60px] translate-x-10 -translate-y-10" />
-               
-               <h4 className="font-black font-outfit text-slate-800 text-lg md:text-xl mb-6 flex items-center gap-3 relative z-10">
+               <h4 className="font-black font-outfit text-slate-800 text-lg mb-6 flex items-center gap-3 relative z-10">
                  <div className="p-2 bg-emerald-500 rounded-xl shadow-lg shadow-emerald-500/20">
                    <TrendingUp className="h-5 w-5 text-white" />
                  </div>
-                 Growth Engine IA
+                 Growth Engine
                </h4>
-                <p className="text-base md:text-lg text-slate-600 leading-relaxed font-bold italic relative z-10">
-                  &quot;A busca por <span className="text-emerald-600 underline decoration-emerald-500/30 underline-offset-4">Mobilidade Articular</span> cresceu 42% em SJC. Gerar artigo sobre &apos;Prevenção de Lesões em Atletas&apos;?&quot;
+                <p className="text-base text-slate-600 leading-relaxed font-bold italic relative z-10">
+                  &quot;Pico de procura por <span className="text-emerald-600 underline decoration-emerald-500/30 underline-offset-4">Performance</span> em SJC detectado.&quot;
                 </p>
                <div className="mt-8 relative z-10">
-                  <Button className="w-full bg-white hover:bg-slate-50 text-emerald-700 font-black rounded-xl md:rounded-2xl h-14 shadow-md border-none transition-all hover:-translate-y-1 text-sm">
-                    Executar Automação de Conteúdo
+                  <Button className="w-full bg-white hover:bg-slate-50 text-emerald-700 font-black rounded-2xl h-12 shadow-md border-none transition-all text-xs">
+                    Criar Post de Campanha
                   </Button>
                </div>
             </Card>
          </div>
       </div>
+
+      {/* New Lead Modal */}
+      <AnimatePresence>
+        {showLeadModal && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]" onClick={() => setShowLeadModal(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none" >
+              <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-lg pointer-events-auto overflow-hidden">
+                <div className="bg-[#0a4d2c] p-10 text-white flex justify-between items-center">
+                  <h2 className="text-2xl font-black font-outfit tracking-tight uppercase italic">Novo <span className="text-emerald-400">Cliente</span></h2>
+                  <button onClick={() => setShowLeadModal(false)} className="p-2 rounded-xl bg-white/10 hover:bg-white/20"><X className="h-5 w-5" /></button>
+                </div>
+                <div className="p-10 space-y-6">
+                  <div className="space-y-4">
+                    <input type="text" placeholder="Nome do Cliente" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 transition-all font-bold" value={leadForm.name} onChange={e => setLeadForm({...leadForm, name: e.target.value})} />
+                    <input type="tel" placeholder="WhatsApp" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 transition-all font-bold" value={leadForm.phone} onChange={e => setLeadForm({...leadForm, phone: e.target.value})} />
+                  </div>
+                  <Button onClick={handleSaveLead} className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-black h-16 rounded-2xl shadow-xl shadow-emerald-500/20">Cadastrar Agora</Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* New Appointment Modal */}
+      <AnimatePresence>
+        {showAgendaModal && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]" onClick={() => setShowAgendaModal(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none" >
+              <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-lg pointer-events-auto overflow-hidden">
+                <div className="bg-[#0a4d2c] p-10 text-white flex justify-between items-center">
+                  <h2 className="text-2xl font-black font-outfit tracking-tight uppercase italic">Marcar <span className="text-emerald-400">Agenda</span></h2>
+                  <button onClick={() => setShowAgendaModal(false)} className="p-2 rounded-xl bg-white/10 hover:bg-white/20"><X className="h-5 w-5" /></button>
+                </div>
+                <div className="p-10 space-y-4">
+                  <input type="text" placeholder="Nome do Paciente" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 font-bold" value={agendaForm.patientName} onChange={e => setAgendaForm({...agendaForm, patientName: e.target.value})} />
+                  <input type="tel" placeholder="WhatsApp" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 font-bold" value={agendaForm.phone} onChange={e => setAgendaForm({...agendaForm, phone: e.target.value})} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="date" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-bold" value={agendaForm.date} onChange={e => setAgendaForm({...agendaForm, date: e.target.value})} />
+                    <input type="time" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-bold" value={agendaForm.time} onChange={e => setAgendaForm({...agendaForm, time: e.target.value})} />
+                  </div>
+                  <Button onClick={handleSaveAppointment} className="w-full bg-emerald-500 hover:bg-emerald-400 text-white font-black h-16 rounded-2xl shadow-xl shadow-emerald-500/20 mt-4">Confirmar Agendamento</Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Finance Modal */}
+      <AnimatePresence>
+        {showFinanceModal.show && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100]" onClick={() => setShowFinanceModal({ show: false, type: 'INCOME' })} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none" >
+              <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-lg pointer-events-auto overflow-hidden">
+                <div className={cn("p-10 text-white flex justify-between items-center", showFinanceModal.type === 'INCOME' ? 'bg-blue-600' : 'bg-red-500')}>
+                  <h2 className="text-2xl font-black font-outfit tracking-tight uppercase italic flex items-center gap-3">
+                    {showFinanceModal.type === 'INCOME' ? <DollarSign className="h-6 w-6" /> : <TrendingDown className="h-6 w-6" />}
+                    Nova <span className="opacity-70">{showFinanceModal.type === 'INCOME' ? 'Receita' : 'Despesa'}</span>
+                  </h2>
+                  <button onClick={() => setShowFinanceModal({ show: false, type: 'INCOME' })} className="p-2 rounded-xl bg-white/10 hover:bg-white/20"><X className="h-5 w-5" /></button>
+                </div>
+                <div className="p-10 space-y-4">
+                  <div className="space-y-4">
+                    <input type="text" placeholder="Descrição" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 font-bold" value={financeForm.description} onChange={e => setFinanceForm({...financeForm, description: e.target.value})} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <input type="number" placeholder="Valor (R$)" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-emerald-500 font-bold" value={financeForm.amount} onChange={e => setFinanceForm({...financeForm, amount: e.target.value})} />
+                      <input type="date" className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-bold" value={financeForm.date} onChange={e => setFinanceForm({...financeForm, date: e.target.value})} />
+                    </div>
+                    <select className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-bold" value={financeForm.category} onChange={e => setFinanceForm({...financeForm, category: e.target.value})}>
+                      <option value="Serviços">Serviços</option>
+                      <option value="Materiais">Materiais</option>
+                      <option value="Aluguel">Aluguel</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Outros">Outros</option>
+                    </select>
+                  </div>
+                  <Button onClick={handleSaveFinance} className={cn("w-full text-white font-black h-16 rounded-2xl shadow-xl mt-4", showFinanceModal.type === 'INCOME' ? 'bg-blue-600 shadow-blue-500/20' : 'bg-red-500 shadow-red-500/20')}>
+                    Lançar Agora
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   )
 }
@@ -218,29 +403,26 @@ function StatCard({ title, value, change, icon, variant, delay }: any) {
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
     >
-      <Card className={`rounded-[32px] md:rounded-[40px] border-none shadow-2xl p-8 md:p-10 flex flex-col justify-between min-h-[220px] md:min-h-[260px] relative overflow-hidden ${styles[variant]}`}>
-        {/* Card Shine Effect */}
+      <Card className={`rounded-[40px] border-none shadow-2xl p-10 flex flex-col justify-between min-h-[260px] relative overflow-hidden ${styles[variant]}`}>
         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
-        
         <div className="flex justify-between items-start relative z-10">
           <div className={cn(
-            "p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-lg transition-transform hover:rotate-12 duration-500",
+            "p-5 rounded-3xl shadow-lg transition-transform hover:rotate-12 duration-500",
             variant === 'primary' ? 'bg-white/10 text-emerald-400' : 'bg-slate-100 text-emerald-600'
           )}>
             {icon}
           </div>
           <Badge className={cn(
-            "px-3 py-1 md:px-4 md:py-1.5 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-wider border-none shadow-none",
+            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border-none shadow-none",
             variant === 'primary' ? 'bg-white/10 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
           )}>
             {change}
           </Badge>
         </div>
-        
         <div className="relative z-10">
-          <h3 className="text-4xl md:text-6xl font-black font-outfit mb-2 md:mb-3 tracking-tighter leading-none">{value}</h3>
+          <h3 className="text-6xl font-black font-outfit mb-3 tracking-tighter leading-none">{value}</h3>
           <p className={cn(
-            "text-[10px] md:text-[11px] font-black uppercase tracking-[0.25em]",
+            "text-[11px] font-black uppercase tracking-[0.25em]",
             variant === 'primary' ? 'text-white/40' : 'text-slate-400'
           )}>{title}</p>
         </div>
@@ -249,41 +431,26 @@ function StatCard({ title, value, change, icon, variant, delay }: any) {
   )
 }
 
-function ActivityItem({ title, desc, time, type }: any) {
+function ActivitySmallItem({ title, desc, time, type }: any) {
    const icons: any = {
-      NEW_LEAD: <Users className="h-5 w-5" />,
-      POST: <Zap className="h-5 w-5" />,
-      SETTING: <FileText className="h-5 w-5" />,
-   }
-
-   const colors: any = {
-      NEW_LEAD: "bg-blue-50/50 text-blue-600 border border-blue-100/50",
-      POST: "bg-amber-50/50 text-amber-600 border border-amber-100/50",
-      SETTING: "bg-emerald-50/50 text-emerald-600 border border-emerald-100/50",
+      NEW_LEAD: <Users className="h-4 w-4" />,
+      APPOINTMENT: <CalendarIcon className="h-4 w-4" />,
+      POST: <Zap className="h-4 w-4" />,
    }
 
    return (
-      <motion.div 
-        whileHover={{ x: 10 }}
-        className="p-6 md:p-8 flex gap-5 md:gap-8 hover:bg-slate-50/50 transition-all duration-300 group cursor-default"
-      >
-         <div className={cn(
-            "h-12 w-12 md:h-16 md:w-16 shrink-0 rounded-[16px] md:rounded-[20px] flex items-center justify-center shadow-lg shadow-black/5 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6",
-            colors[type] || 'bg-slate-50 text-slate-400'
-         )}>
-            {icons[type] || <CalendarIcon className="h-5 w-5" />}
+      <div className="p-6 flex gap-5 hover:bg-slate-50/50 transition-all duration-300 group cursor-default">
+         <div className="h-12 w-12 shrink-0 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm text-slate-400 group-hover:text-emerald-500 group-hover:border-emerald-100 transition-all">
+            {icons[type] || <Activity className="h-4 w-4" />}
          </div>
-         <div className="flex-1 flex flex-col justify-center">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1.5 gap-1">
-               <p className="text-base md:text-xl font-black font-outfit text-slate-800 tracking-tight leading-none group-hover:text-emerald-700 transition-colors uppercase text-xs md:text-sm">{title}</p>
-               <span className="text-[9px] md:text-[10px] font-black text-slate-300 flex items-center gap-1.5 uppercase tracking-widest leading-none">
-                  <Clock className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                  {time}
-               </span>
+         <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-center mb-1">
+               <p className="text-[11px] font-black font-outfit text-slate-800 tracking-tight uppercase group-hover:text-emerald-700 transition-colors truncate">{title}</p>
+               <span className="text-[9px] font-black text-slate-300 uppercase shrink-0">{time}</span>
             </div>
-            <p className="text-xs md:text-sm text-slate-500 font-bold leading-relaxed">{desc}</p>
+            <p className="text-[11px] text-slate-500 font-bold leading-relaxed truncate">{desc}</p>
          </div>
-      </motion.div>
+      </div>
    )
 }
 

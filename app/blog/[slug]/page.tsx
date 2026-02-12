@@ -9,6 +9,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { BookingCalendarModal } from '@/components/ui/booking-calendar'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function BlogPostReader() {
   const { slug } = useParams()
@@ -48,7 +49,13 @@ export default function BlogPostReader() {
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden bg-slate-900">
         {post.imageUrl ? (
-          <img src={post.imageUrl} className="w-full h-full object-cover opacity-60" alt={post.title} />
+          <Image 
+            src={post.imageUrl} 
+            fill
+            className="object-cover opacity-60" 
+            alt={post.title}
+            priority
+          />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-emerald-900 to-slate-900 opacity-80" />
         )}

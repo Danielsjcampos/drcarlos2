@@ -100,6 +100,18 @@ export default function PatientsPage() {
     }
   }
 
+  const handleDeletePatient = async () => {
+    if (!selectedPatient || !confirm(`Tem certeza que deseja excluir o paciente ${selectedPatient.name}? Todos os agendamentos vinculados também serão removidos.`)) return
+    
+    try {
+      await fetch(`/api/patients?id=${selectedPatient.id}`, { method: 'DELETE' })
+      setSelectedPatient(null)
+      fetchPatients()
+    } catch (error) {
+      alert('Erro ao excluir paciente')
+    }
+  }
+
   const filteredPatients = patients.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     p.phone.includes(searchTerm)
@@ -208,18 +220,35 @@ export default function PatientsPage() {
                                 {selectedPatient.name.charAt(0)}
                              </div>
                              <div>
-                                <h2 className="text-xl md:text-2xl font-black font-outfit leading-tight">{selectedPatient.name}</h2>
+                                <h2 className="text-xl md:text-2xl font-black font-outfit leading-tight flex items-center gap-3">
+                                   {selectedPatient.name}
+                                   {selectedPatient.accessCode && (
+                                     <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 font-black text-[9px] uppercase tracking-[0.2em] px-3">
+                                        PIN: {selectedPatient.accessCode}
+                                     </Badge>
+                                   )}
+                                </h2>
                                 <p className="text-emerald-400 font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-1">{selectedPatient.origin || 'Origem não definida'}</p>
                              </div>
                           </div>
-                          <Button 
-                            onClick={handleUpdate}
-                            disabled={saving}
-                            className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 rounded-xl md:rounded-2xl h-12 md:h-14 px-8 font-black text-xs gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
-                          >
-                             <Save className="h-4 w-4" />
-                             {saving ? 'Salvando...' : 'Salvar Prontuário'}
-                          </Button>
+                          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <Button 
+                              variant="ghost" 
+                              onClick={handleDeletePatient}
+                              className="h-12 md:h-14 px-6 rounded-xl md:rounded-2xl text-red-500 hover:bg-red-50 gap-2 font-bold transition-all active:scale-95"
+                            >
+                               <Trash2 className="h-4 w-4" /> 
+                               Excluir
+                            </Button>
+                            <Button 
+                              onClick={handleUpdate} 
+                              disabled={saving}
+                              className="bg-emerald-500 hover:bg-emerald-600 rounded-xl md:rounded-2xl h-12 md:h-14 px-8 font-black text-xs gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex-1 sm:flex-none"
+                            >
+                               <Save className="h-4 w-4" /> 
+                               {saving ? 'Salvando...' : 'Salvar Prontuário'}
+                            </Button>
+                          </div>
                        </div>
                     </div>
 

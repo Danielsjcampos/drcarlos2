@@ -101,6 +101,11 @@ model Settings {
   googleClientId     String?
   googleClientSecret String?
   googleRedirectUri  String?
+  // Working Hours
+  workingStart      String   @default("08:00")
+  workingEnd        String   @default("19:00")
+  lunchStart        String   @default("12:00")
+  lunchEnd          String   @default("14:00")
 }
 
 model Appointment {

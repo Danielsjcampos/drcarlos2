@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const blocked = await prisma.blockedSlot.findMany()
     return NextResponse.json(blocked)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch blocked slots' }, { status: 500 })
   }
 }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       })
       return NextResponse.json({ success: true, action: 'blocked', data: blocked })
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to toggle block' }, { status: 500 })
   }
 }

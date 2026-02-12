@@ -22,7 +22,8 @@ import {
   Loader2,
   ExternalLink,
   ShieldCheck,
-  Palette
+  Palette,
+  Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -51,7 +52,11 @@ export default function SettingsPage() {
     openaiApiKey: '',
     googleClientId: '',
     googleClientSecret: '',
-    googleRedirectUri: ''
+    googleRedirectUri: '',
+    workingStart: '08:00',
+    workingEnd: '19:00',
+    lunchStart: '12:00',
+    lunchEnd: '14:00'
   })
 
   useEffect(() => {
@@ -281,6 +286,46 @@ export default function SettingsPage() {
                   <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400">CEP</Label>
                   <Input name="addressPostalCode" value={settings.addressPostalCode || ''} onChange={handleChange} className="rounded-xl h-12 font-semibold" />
                 </div>
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* Horário de Funcionamento */}
+          <SectionCard 
+            icon={<Clock className="h-5 w-5" />} 
+            title="Horário de Funcionamento"
+            description="Defina o expediente e horários de intervalo."
+          >
+            <div className="space-y-8">
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Início do Expediente</Label>
+                  <Input type="time" name="workingStart" value={settings.workingStart} onChange={handleChange} className="rounded-2xl h-14 font-semibold" />
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fim do Expediente</Label>
+                  <Input type="time" name="workingEnd" value={settings.workingEnd} onChange={handleChange} className="rounded-2xl h-14 font-semibold" />
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-6">
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                   <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Intervalo (Almoço)</span>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Início</Label>
+                    <Input type="time" name="lunchStart" value={settings.lunchStart} onChange={handleChange} className="rounded-xl h-12 font-semibold bg-white" />
+                  </div>
+                  <div className="space-y-3">
+                    <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Término</Label>
+                    <Input type="time" name="lunchEnd" value={settings.lunchEnd} onChange={handleChange} className="rounded-xl h-12 font-semibold bg-white" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium italic">
+                  * Estes horários serão bloqueados automaticamente na agenda de marcação externa e interna.
+                </p>
               </div>
             </div>
           </SectionCard>

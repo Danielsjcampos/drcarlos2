@@ -74,7 +74,11 @@ export default function ClientDashboard() {
     )
   }
 
-  const nextAppointment = lead?.appointments.find(a => new Date(a.date) >= new Date() && a.status !== 'CANCELLED')
+  const todayStr = new Date().toISOString().split('T')[0]
+  const nextAppointment = lead?.appointments.find(a => {
+    const aDate = new Date(a.date).toISOString().split('T')[0]
+    return aDate >= todayStr && a.status !== 'CANCELLED'
+  })
   const history = lead?.appointments.filter(a => a.id !== nextAppointment?.id) || []
 
   return (
