@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { getSiteSettings } from "@/lib/settings";
@@ -30,8 +30,14 @@ export async function generateMetadata(): Promise<Metadata> {
       title: siteName,
       description: description,
     },
-    themeColor: settings?.themeColor || '#0a4d2c',
     icons: settings?.iconUrl ? [settings.iconUrl] : []
+  };
+}
+
+export async function generateViewport(): Promise<Viewport> {
+  const settings = await getSiteSettings();
+  return {
+    themeColor: settings?.themeColor || '#0a4d2c',
   };
 }
 
