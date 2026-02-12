@@ -300,7 +300,7 @@ export default function FinanceiroPage() {
                     <DREItem key={cat} label={categories[cat]?.label || cat} value={val} type="EXPENSE" />
                   ))}
                   <div className="h-[2px] bg-slate-900 my-6" />
-                  <DREItem label="Lucro Líquido Operacional" value={(reports?.dre?.revenue || 0) - Object.values(reports?.dre?.categories || {}).reduce((a: any, b: any) => a + (b as number), 0)} type="PROFIT" bold />
+                  <DREItem label="Lucro Líquido Operacional" value={(reports?.dre?.revenue || 0) - (Object.values(reports?.dre?.categories || {}) as number[]).reduce((a, b) => a + b, 0)} type="PROFIT" bold />
                </div>
             </Card>
 
