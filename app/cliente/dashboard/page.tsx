@@ -6,7 +6,7 @@ import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, Phone, LogOut, Loader2, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, Phone, LogOut, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 

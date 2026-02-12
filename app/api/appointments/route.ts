@@ -7,7 +7,7 @@ export async function GET() {
       orderBy: { date: 'asc' }
     })
     return NextResponse.json(appointments)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch appointments' }, { status: 500 })
   }
 }
@@ -94,7 +94,7 @@ export async function PATCH(request: Request) {
     })
 
     return NextResponse.json(appointment)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update appointment' }, { status: 500 })
   }
 }
@@ -107,7 +107,7 @@ export async function DELETE(request: Request) {
 
     await prisma.appointment.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete appointment' }, { status: 500 })
   }
 }

@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Plus, ChevronLeft, ChevronRight, Clock, User, Phone,
-  Calendar as CalendarIcon, X, Check, Ban, AlertCircle,
-  Globe, MessageSquare
+  Plus, ChevronLeft, ChevronRight, User, Phone,
+  Calendar as CalendarIcon, X, Ban, Globe
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

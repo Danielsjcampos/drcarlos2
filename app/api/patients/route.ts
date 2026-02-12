@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       orderBy: { name: 'asc' }
     })
     return NextResponse.json(patients)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch patients' }, { status: 500 })
   }
 }
@@ -50,7 +50,7 @@ export async function DELETE(request: Request) {
 
     await prisma.lead.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed' }, { status: 500 })
   }
 }

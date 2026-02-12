@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
-import { startOfDay, endOfDay, subDays } from 'date-fns'
+// Basic dashboard stats API logic using native Date for UTC boundaries
 
 export async function GET() {
   try {

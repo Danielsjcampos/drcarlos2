@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { 
-  User, Phone, Mail, Calendar, Search, Filter, 
-  ChevronRight, ArrowLeft, Plus, Save, History, 
-  Activity, FileText, Camera, Trash2, X
+  User, Phone, Search, 
+  ChevronRight, ArrowLeft, Plus, Save, 
+  Activity, Camera, Trash2
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'

@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react'
 import DashboardLayout from '@/components/DashboardLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, FileText, Calendar as CalendarIcon, TrendingUp, ArrowUpRight, ArrowDownRight, Clock, Target, Activity, Settings, Zap, Compass, Star, X, DollarSign, TrendingDown } from 'lucide-react'
+import { Users, Calendar as CalendarIcon, TrendingUp, ArrowUpRight, Clock, Target, Activity, Zap, X, DollarSign, TrendingDown } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 export default function DashboardOverview() {
@@ -20,7 +20,7 @@ export default function DashboardOverview() {
   const [agendaForm, setAgendaForm] = useState({ patientName: '', phone: '', date: new Date().toISOString().split('T')[0], time: '09:00', type: 'AVALIACAO', notes: '' })
   const [financeForm, setFinanceForm] = useState({ description: '', amount: '', category: 'Geral', date: new Date().toISOString().split('T')[0] })
 
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       const res = await fetch('/api/dashboard/stats')
       const json = await res.json()
@@ -30,11 +30,11 @@ export default function DashboardOverview() {
       console.error("Error fetching dashboard data:", err)
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
   const handleSaveLead = async () => {
     if (!leadForm.name || !leadForm.phone) return
