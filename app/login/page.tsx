@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Activity, Lock, Mail, Terminal } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Activity, Lock, Mail } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 export default function LoginPage() {
@@ -17,12 +17,11 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     // Normal login logic would go here
-    console.log('Login attempt:', email)
-  }
-
-  const handleDevAccess = () => {
-    // Development bypass
-    router.push('/dashboard')
+    if (email === 'admin@sporthealth.com' && password === 'admin123') {
+      router.push('/dashboard')
+    } else {
+      alert('Email ou senha incorretos')
+    }
   }
 
   return (
@@ -42,7 +41,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Card className="bg-black/40 border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <Card className="bg-black/40 border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden mb-8">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#22c55e] to-transparent"></div>
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold text-white">Bem-vindo de volta</CardTitle>
@@ -51,7 +50,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4 pb-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-300">Email</Label>
                 <div className="relative">
@@ -89,30 +88,11 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-[#0a0a0a] px-2 text-gray-500">Desenvolvimento</span>
-              </div>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              className="w-full border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-colors gap-2"
-              onClick={handleDevAccess}
-            >
-              <Terminal className="h-4 w-4" />
-              Acesso Rápido (Dev Mode)
-            </Button>
-            
-            <p className="text-center text-sm text-gray-500">
-              Não tem uma conta? <span className="text-white font-medium cursor-pointer hover:underline">Fale com o admin</span>
-            </p>
-          </CardFooter>
         </Card>
+
+        <p className="text-center text-sm text-gray-500">
+          Não tem uma conta? <span className="text-white font-medium cursor-pointer hover:underline">Fale com o admin</span>
+        </p>
       </motion.div>
     </div>
   )
