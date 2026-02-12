@@ -20,6 +20,8 @@ export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const fetchPatients = () => {
     setLoading(true)
@@ -33,6 +35,53 @@ export default function PatientsPage() {
   }
 
   useEffect(() => { fetchPatients() }, [])
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedPatient) return
+
+    setUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+      if (data.url) {
+        const updatedPhotos = [...(selectedPatient.photos || []), data.url]
+        const updatedPatient = { ...selectedPatient, photos: updatedPhotos }
+        setSelectedPatient(updatedPatient)
+        
+        await fetch('/api/patients', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedPatient)
+        })
+      }
+    } catch (err) {
+      alert('Erro ao fazer upload')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const removePhoto = async (index: number) => {
+    if (!selectedPatient) return
+    const currentPhotos = selectedPatient.photos || []
+    const updatedPhotos = currentPhotos.filter((_: any, i: number) => i !== index)
+    const updatedPatient = { ...selectedPatient, photos: updatedPhotos }
+    setSelectedPatient(updatedPatient)
+    
+    await fetch('/api/patients', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedPatient)
+    })
+  }
 
   const handleUpdate = async () => {
     if (!selectedPatient) return
@@ -245,13 +294,83 @@ export default function PatientsPage() {
                         </div>
                       </div>
 
-                      {/* Photo Gallery Placeholder */}
-                      <div className="p-8 md:p-12 bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100 text-center group cursor-pointer hover:border-emerald-200 hover:bg-emerald-50/30 transition-all duration-500">
-                         <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-md mx-auto mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                            <Camera className="h-6 w-6 text-emerald-400" />
-                         </div>
-                         <h5 className="font-black text-slate-800 mb-2 tracking-tight">Galeria de Exames & Postura</h5>
-                         <p className="text-xs text-slate-400 max-w-[200px] mx-auto leading-relaxed">Clique ou arraste arquivos para anexar fotos e exames ao perfil.</p>
+                      {/* Photo Gallery */}
+                      <div>
+                        <div className="flex items-center justify-between mb-6">
+                           <div className="flex items-center gap-2">
+                              <div className="p-2 bg-emerald-50 rounded-lg">
+                                 <Camera className="h-4 w-4 text-emerald-600" />
+                              </div>
+                              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Galeria de Exames & Postura</h4>
+                           </div>
+                           {selectedPatient.photos?.length > 0 && (
+                             <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                              className="text-[10px] font-black uppercase tracking-widest text-[#0a4d2c] hover:bg-emerald-50"
+                             >
+                               Adicionar Foto
+                             </Button>
+                           )}
+                        </div>
+
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          ref={fileInputRef} 
+                          onChange={handlePhotoUpload}
+                          accept="image/*,.pdf"
+                        />
+
+                        {selectedPatient.photos?.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {selectedPatient.photos.map((url: string, idx: number) => (
+                              <div key={idx} className="relative group aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                                <img src={url} className="w-full h-full object-cover" alt={`Exame ${idx + 1}`} />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                  <button 
+                                    onClick={() => window.open(url, '_blank')}
+                                    className="p-2 bg-white rounded-lg text-slate-900 hover:scale-110 transition-transform"
+                                  >
+                                    <ChevronRight className="h-4 w-4" />
+                                  </button>
+                                  <button 
+                                    onClick={() => removePhoto(idx)}
+                                    className="p-2 bg-red-500 rounded-lg text-white hover:scale-110 transition-transform"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                            <button 
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                              className="aspect-square rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center text-slate-300 hover:border-emerald-200 hover:bg-emerald-50/30 hover:text-emerald-500 transition-all group"
+                            >
+                              <Plus className="h-6 w-6 mb-2 group-hover:scale-110 transition-transform" />
+                              <span className="text-[8px] font-black uppercase tracking-widest">Novo Item</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className={cn(
+                              "p-8 md:p-12 bg-gray-50/50 rounded-[2rem] border-2 border-dashed border-gray-100 text-center group cursor-pointer hover:border-emerald-200 hover:bg-emerald-50/30 transition-all duration-500",
+                              uploading && "opacity-50 pointer-events-none"
+                            )}
+                          >
+                             <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-md mx-auto mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                                <Activity className={cn("h-6 w-6 text-emerald-400", uploading && "animate-spin")} />
+                             </div>
+                             <h5 className="font-black text-slate-800 mb-2 tracking-tight">
+                               {uploading ? 'Enviando arquivo...' : 'Galeria de Exames & Postura'}
+                             </h5>
+                             <p className="text-xs text-slate-400 max-w-[200px] mx-auto leading-relaxed">Clique para selecionar e anexar fotos e exames ao perfil.</p>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

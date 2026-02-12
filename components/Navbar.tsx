@@ -14,7 +14,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const pathname = usePathname()
-
+  const isBlogPage = pathname?.startsWith('/blog')
   const isDarkPage = pathname === '/tratamentos' || pathname === '/servicos-para-atletas'
 
   useEffect(() => {
@@ -41,12 +41,12 @@ export function Navbar() {
     { name: 'Área do Cliente', href: '/cliente/login' },
   ]
 
-  const navTextColor = scrolled ? 'text-gray-700' : (isDarkPage ? 'text-white' : 'text-gray-700')
-  const logoInvert = !scrolled && isDarkPage ? 'brightness-0 invert' : ''
+  const navTextColor = (scrolled || isBlogPage) ? 'text-gray-700' : (isDarkPage ? 'text-white' : 'text-gray-700')
+  const logoInvert = !(scrolled || isBlogPage) && isDarkPage ? 'brightness-0 invert' : ''
 
   return (
     <>
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${(scrolled || isBlogPage) ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
