@@ -56,7 +56,7 @@ export default async function RootLayout({
     "telephone": settings?.contactPhone || "+5512997150819",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": settings?.address || "Av. Linneu de Moura, s/n",
+      "streetAddress": settings?.address || "Av. Linneu de Moura s/n - clube Santa Rita - Urbanova",
       "addressLocality": settings?.addressCity || "São José dos Campos",
       "addressRegion": settings?.addressRegion || "SP",
       "postalCode": settings?.addressPostalCode || "12244-380",
@@ -67,7 +67,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -77,7 +77,7 @@ export default async function RootLayout({
         />
         {settings?.iconUrl && <link rel="icon" href={settings.iconUrl} />}
       </head>
-      <body className={`${inter.variable} ${outfit.variable} antialiased font-inter bg-[#fafafa] text-[#1a1a1a]`}>
+      <body className={`${inter.variable} ${outfit.variable} antialiased font-inter bg-[#fafafa] text-[#1a1a1a]`} suppressHydrationWarning>
         {children}
       </body>
     </html>

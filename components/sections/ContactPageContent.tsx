@@ -52,7 +52,7 @@ export function ContactPageContent() {
                     </div>
                     <div>
                       <h4 className="font-bold text-lg">Endereço</h4>
-                      <p className="text-gray-600">Av. Linneu de Moura, s/n - Condomínio ..., São José dos Campos - SP, 12244-380</p>
+                      <p className="text-gray-600">Av. Linneu de Moura s/n - clube Santa Rita - Urbanova, São Jose dos Campos- SP, 12244-380</p>
                     </div>
                   </div>
                   <div className="flex gap-4 items-center">
@@ -84,7 +84,7 @@ export function ContactPageContent() {
                   </div>
                   <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                     <span className="text-gray-600">Segunda - Sexta</span>
-                    <span className="font-bold">08:00 - 20:00</span>
+                    <span className="font-bold">08:00 - 18:00</span>
                     <span className="text-gray-600">Sábado</span>
                     <span className="font-bold">08:00 - 12:00</span>
                     <span className="text-gray-600">Domingo</span>
