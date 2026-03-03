@@ -23,7 +23,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Palette,
-  Clock
+  Clock,
+  Send
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -56,7 +57,11 @@ export default function SettingsPage() {
     workingStart: '08:00',
     workingEnd: '19:00',
     lunchStart: '12:00',
-    lunchEnd: '14:00'
+    lunchEnd: '14:00',
+    adEnabled: false,
+    adCTAText: 'Agendar Consulta Agora',
+    adTarget: 'WHATSAPP',
+    adFrequency: 1
   })
 
   useEffect(() => {
@@ -399,6 +404,84 @@ export default function SettingsPage() {
               <div className="space-y-3">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Twitter Username</Label>
                 <Input name="twitterHandle" value={settings.twitterHandle || ''} onChange={handleChange} className="rounded-2xl h-14 font-semibold bg-white" placeholder="@crmatletessjc" />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* Sistema de Propaganda / Advertise */}
+          <SectionCard 
+            icon={<Send className="h-5 w-5" />} 
+            title="Sitema de Propaganda (Ads)"
+            description="Injete chamadas de ação (CTAs) automáticas no Blog e Glossário."
+            className="border-emerald-100 bg-emerald-50/20"
+          >
+            <div className="space-y-8">
+              <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-emerald-100">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-black text-emerald-950">Ativar Propagandas</Label>
+                  <p className="text-[10px] text-slate-500 font-medium">Insere blocos de anúncio no meio do texto gerado pela IA.</p>
+                </div>
+                <div 
+                  onClick={() => setSettings(p => ({ ...p, adEnabled: !p.adEnabled }))}
+                  className={cn(
+                    "w-12 h-6 rounded-full p-1 cursor-pointer transition-all duration-300",
+                    settings.adEnabled ? "bg-emerald-500" : "bg-slate-200"
+                  )}
+                >
+                  <motion.div 
+                    animate={{ x: settings.adEnabled ? 24 : 0 }}
+                    className="w-4 h-4 bg-white rounded-full shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Texto da Chamada (CTA)</Label>
+                  <Input 
+                    name="adCTAText" 
+                    value={settings.adCTAText} 
+                    onChange={handleChange} 
+                    className="rounded-2xl h-14 font-semibold bg-white" 
+                    placeholder="Ex: Agendar Consulta Agora" 
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Destino do Clique</Label>
+                  <select 
+                    name="adTarget" 
+                    value={settings.adTarget} 
+                    onChange={(e: any) => setSettings(p => ({ ...p, adTarget: e.target.value }))}
+                    className="w-full h-14 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none"
+                  >
+                    <option value="WHATSAPP">WhatsApp Business</option>
+                    <option value="PHONE">Telefone Principal</option>
+                    <option value="EMAIL">Email de Contato</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Freqüência (Blocos por Conteúdo)</Label>
+                <div className="flex gap-4">
+                  {[1, 2].map(num => (
+                    <button
+                      key={num}
+                      onClick={() => setSettings(p => ({ ...p, adFrequency: num }))}
+                      className={cn(
+                        "flex-1 h-16 rounded-2xl font-black text-sm transition-all border-2",
+                        settings.adFrequency === num 
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-900/10" 
+                          : "bg-white border-slate-100 text-slate-400 hover:border-emerald-200"
+                      )}
+                    >
+                      {num} {num === 1 ? 'Anúncio' : 'Anúncios'}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium italic mt-2 px-1">
+                  * 1 anúncio aparecerá no meio; 2 anúncios aparecerão no meio e no final do texto.
+                </p>
               </div>
             </div>
           </SectionCard>

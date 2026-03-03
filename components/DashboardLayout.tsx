@@ -17,7 +17,8 @@ import {
   FileText,
   PlusCircle,
   Menu,
-  X
+  X,
+  Zap
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -39,6 +40,7 @@ export default function DashboardLayout({
     { icon: <Users className="h-5 w-5" />, label: 'Leads', href: '/dashboard/leads' },
     { icon: <LineChart className="h-5 w-5" />, label: 'Financeiro', href: '/dashboard/financeiro' },
     { icon: <FileText className="h-5 w-5" />, label: 'Blog IA', href: '/dashboard/blog' },
+    { icon: <Zap className="h-5 w-5" />, label: 'Glossário IA', href: '/dashboard/queue' },
     { icon: <Settings className="h-5 w-5" />, label: 'Configurações', href: '/dashboard/configuracoes' },
   ]
 

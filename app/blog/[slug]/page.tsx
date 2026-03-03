@@ -46,6 +46,31 @@ export default function BlogPostReader() {
     <div className="min-h-screen bg-white">
       <Navbar />
 
+      {post && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BlogPosting',
+              mainEntityOfPage: {
+                '@type': 'WebPage',
+                '@id': typeof window !== 'undefined' ? window.location.href : '',
+              },
+              headline: post.title,
+              description: post.metaDescription || post.excerpt || '',
+              datePublished: post.createdAt,
+              dateModified: post.updatedAt || post.createdAt,
+              author: {
+                '@type': 'Person',
+                name: 'Dr. Carlos Prado'
+              },
+              image: post.imageUrl ? [post.imageUrl] : []
+            })
+          }}
+        />
+      )}
+
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden bg-slate-900">
         {post.imageUrl ? (

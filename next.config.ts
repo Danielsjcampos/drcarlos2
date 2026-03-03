@@ -5,6 +5,22 @@ const nextConfig: NextConfig = {
     // Warnings won't block the Vercel production build
     ignoreDuringBuilds: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
+      }
+    ],
+  },
 };
 
 export default nextConfig;

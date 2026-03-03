@@ -106,6 +106,12 @@ model Settings {
   workingEnd        String   @default("19:00")
   lunchStart        String   @default("12:00")
   lunchEnd          String   @default("14:00")
+
+  // Advertisement System
+  adEnabled         Boolean  @default(false)
+  adCTAText         String   @default("Agendar Consulta Agora")
+  adTarget          String   @default("WHATSAPP") // WHATSAPP, PHONE, EMAIL
+  adFrequency       Int      @default(1) // 1 or 2 ads
 }
 
 model Appointment {
@@ -136,3 +142,24 @@ model Transaction {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model GlossaryTerm {
+  id          String   @id @default(cuid())
+  term        String
+  slug        String   @unique
+  definition  String
+  category    String?
+  status      String   @default("DRAFT")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContentQueue {
+  id        String   @id @default(cuid())
+  keyword   String   @unique
+  type      String   @default("BLOG") // BLOG, GLOSSARY
+  status    String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, ERROR
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
