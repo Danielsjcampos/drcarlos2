@@ -30,7 +30,6 @@ export function Footer() {
       title: "Links Rápidos",
       links: [
         { label: "Sobre o Dr. Carlos", href: "/sobre" },
-        { label: "Serviços para Atletas", href: "/servicos-para-atletas" },
         { label: "Blog & News", href: "/blog" },
         { label: "Política de Privacidade", href: "/politica-privacidade" },
         { label: "Área do Admin", href: "/login" },

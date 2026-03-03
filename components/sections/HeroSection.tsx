@@ -89,7 +89,7 @@ export function HeroSection() {
                   </div>
                   <div>
                     <h4 className="font-bold text-[#0a4d2c]">Dr. Carlos Prado</h4>
-                    <p className="text-xs text-[#0a4d2c]/60 font-bold uppercase tracking-wider">CREFITO 3/241285-F</p>
+                    <p className="text-xs text-[#0a4d2c]/60 font-bold uppercase tracking-wider">CREFITO 3/262181-F</p>
                   </div>
                 </div>
               </div>

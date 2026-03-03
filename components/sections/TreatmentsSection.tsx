@@ -5,112 +5,110 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight, Target, Activity, ShieldCheck, Zap } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const treatments = [
   { 
     title: 'Coluna & Lombar', 
-    desc: 'Tratamento especializado para hérnias e dores crônicas com foco em mobilidade.', 
+    desc: 'Tratamento especializado para hérnias discais, ciatalgia e dores crônicas com foco em descompressão e mobilidade.', 
     slug: '/tratamentos/coluna-lombar',
-    icon: <Activity className="h-5 w-5 text-emerald-400" />,
-    className: 'md:col-span-2 md:row-span-2 bg-[#0a4d2c]/90 text-white overflow-hidden group backdrop-blur-md'
+    icon: <Activity className="h-6 w-6" />,
+    color: 'bg-emerald-500'
   },
   { 
-    title: 'Performance Esportiva', 
-    desc: 'Recuperação acelerada para atletas de elite.', 
+    title: 'Joelho & Quadril', 
+    desc: 'Protocolos de recuperação acelerada para lesões ligamentares, meniscais e artrose.', 
     slug: '/tratamentos/joelho',
-    icon: <Zap className="h-5 w-5 text-cyan-400" />,
-    className: 'md:col-span-1 md:row-span-1 bg-white/85 border border-white/60 group backdrop-blur-md'
+    icon: <Zap className="h-6 w-6" />,
+    color: 'bg-blue-500'
   },
   { 
-    title: 'Reabilitação Pós-Op', 
-    desc: 'Protocolos rigorosos para retorno seguro.', 
-    slug: '/tratamentos/pos-operatorio',
-    icon: <ShieldCheck className="h-5 w-5 text-blue-500" />,
-    className: 'md:col-span-1 md:row-span-2 bg-white/85 border border-white/60 group backdrop-blur-md'
+    title: 'Ombro & Cervical', 
+    desc: 'Reabilitação de manguito rotador, tendinopatias e cervicalgias com técnicas manuais.', 
+    slug: '/tratamentos/ombro',
+    icon: <Target className="h-6 w-6" />,
+    color: 'bg-orange-500'
   },
   { 
-    title: 'Quiropraxia', 
-    desc: 'Ajustes precisos para alinhamento biomecânico.', 
-    slug: '/tratamentos/quiropraxia',
-    icon: <Target className="h-5 w-5 text-orange-500" />,
-    className: 'md:col-span-1 md:row-span-1 bg-white/85 border border-white/60 group backdrop-blur-md'
+    title: 'Atletas de Elite', 
+    desc: 'Prevenção e recovery de alta performance com a mesma metodologia utilizada no NBB.', 
+    slug: '/servicos-para-atletas',
+    icon: <ShieldCheck className="h-6 w-6" />,
+    color: 'bg-slate-900'
   },
 ]
 
 export function TreatmentsSection() {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
-      {/* Full section blurred background image */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/treatments-bg.webp"
-          alt=""
-          fill
-          className="object-cover blur-[6px] brightness-[0.85] scale-105"
-          sizes="100vw"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/30 to-white/70"></div>
-      </div>
+    <section className="py-24 md:py-40 bg-white overflow-hidden relative">
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-[2px] bg-emerald-500 rounded-full" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-600">Especialidades</span>
+            </div>
+            <h2 className="text-4xl md:text-7xl font-black font-outfit text-slate-900 leading-[1.1] mb-6">
+              Tratamentos de <br />
+              <span className="text-emerald-600">Alta Precisão.</span>
+            </h2>
+            <p className="text-lg text-slate-500 font-medium leading-relaxed">
+              Combinamos evidência científica com prática clínica de alto rendimento para entregar resultados sustentáveis.
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <Link href="/tratamentos">
+              <Button variant="outline" className="rounded-2xl h-14 px-8 border-slate-200 hover:bg-slate-50 font-bold transition-all group">
+                Ver todos os tratamentos
+                <ArrowUpRight className="ml-2 h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
 
-      {/* Content on top */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-[#0a4d2c]/10 text-[#0a4d2c] text-[10px] font-bold uppercase tracking-widest mb-6">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse"></div>
-            Especialidades Médicas
-          </div>
-          <h2 className="text-4xl md:text-[5rem] font-bold font-outfit leading-tight mb-6">
-            Tratamentos de <br />
-            <span className="text-gradient">Alta Precisão.</span>
-          </h2>
-          <p className="text-gray-600 max-w-lg mx-auto font-inter text-lg">
-            Combinamos inteligência clínica com tecnologia de ponta para resultados visíveis desde a primeira sessão.
-          </p>
-        </motion.div>
-
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-3 md:gap-4 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {treatments.map((t, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.6 }}
-              className={`relative rounded-2xl md:rounded-[1.5rem] p-6 md:p-8 flex flex-col justify-between transition-all duration-500 ${t.className} hover:shadow-xl hover:scale-[1.02] cursor-pointer`}
+              transition={{ delay: i * 0.1 }}
+              className="group"
             >
-              {t.className.includes('bg-[#0a4d2c]') && (
-                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-[50px] -mr-20 -mt-20"></div>
-              )}
-              
-              <div className="relative z-10">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${t.className.includes('bg-[#0a4d2c]') ? 'bg-white/10 text-white' : 'bg-white text-gray-900 border border-gray-50 shadow-sm'}`}>
-                  {t.icon}
-                </div>
-                <h3 className="text-lg md:text-2xl font-bold font-outfit mb-2 leading-tight">
-                  {t.title}
-                </h3>
-                <p className={`text-sm leading-relaxed ${t.className.includes('bg-[#0a4d2c]') ? 'text-white/70' : 'text-gray-600'}`}>
-                  {t.desc}
-                </p>
-              </div>
+              <Link href={t.slug} className="block h-full">
+                <div className="bg-slate-50 rounded-[40px] p-10 h-full flex flex-col justify-between border border-transparent hover:border-emerald-500/20 hover:bg-white hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-[80px] -translate-y-10 translate-x-10 group-hover:translate-y-0 group-hover:translate-x-0 transition-transform duration-700" />
+                  
+                  <div>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-10 text-white shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3", t.color)}>
+                      {t.icon}
+                    </div>
+                    <h3 className="text-2xl font-black font-outfit text-slate-900 mb-4 group-hover:text-emerald-700 transition-colors">
+                      {t.title}
+                    </h3>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed mb-10">
+                      {t.desc}
+                    </p>
+                  </div>
 
-              <div className="relative z-10 flex justify-end mt-4">
-                <Link 
-                  href={t.slug} 
-                  className={`w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 ${t.className.includes('bg-[#0a4d2c]') ? 'bg-white/10 hover:bg-white text-white hover:text-[#0a4d2c]' : 'bg-[#0a4d2c] hover:bg-[#16a34a] text-white'}`}
-                >
-                  <ArrowUpRight className="h-5 w-5" />
-                </Link>
-              </div>
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 group-hover:gap-4 transition-all">
+                    Explorar Protocolo
+                    <ArrowUpRight className="h-3 w-3" />
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>

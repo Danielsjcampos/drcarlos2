@@ -35,7 +35,6 @@ export function Navbar() {
     { name: 'Início', href: '/' },
     { name: 'Sobre', href: '/sobre' },
     { name: 'Tratamentos', href: '/tratamentos' },
-    { name: 'Para Atletas', href: '/servicos-para-atletas' },
     { name: 'Blog', href: '/blog' },
     { name: 'Contato', href: '/contato' },
     { name: 'Área do Cliente', href: '/cliente/login' },

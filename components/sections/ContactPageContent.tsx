@@ -44,35 +44,49 @@ export function ContactPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
             <div className="space-y-12">
               <div>
-                <h2 className="text-3xl font-bold font-outfit mb-8">Informações de Contato</h2>
-                <div className="space-y-6">
-                  <div className="flex gap-4 items-start">
-                    <div className="w-12 h-12 rounded-xl bg-[#0a4d2c]/5 text-[#0a4d2c] flex items-center justify-center shrink-0">
+                <h2 className="text-3xl font-bold font-outfit mb-10">Informações de Contato</h2>
+                <div className="grid gap-4">
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex gap-6 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-[#0a4d2c]/5 text-[#0a4d2c] flex items-center justify-center shrink-0 group-hover:bg-[#0a4d2c] group-hover:text-white transition-colors">
                       <MapPin className="h-6 w-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Endereço</h4>
-                      <p className="text-gray-600">Av. Linneu de Moura, s/n - Condomínio ..., São José dos Campos - SP, 12244-380</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-[#0a4d2c] mb-1">Localização</h4>
+                      <p className="text-lg font-bold text-gray-900 leading-tight">
+                        Av. Linneu de Moura, s/n <br />
+                        <span className="text-gray-500 font-medium text-sm text-balance">Clube Santa Rita - Urbanova, São José dos Campos - SP</span>
+                      </p>
                     </div>
-                  </div>
-                  <div className="flex gap-4 items-center">
-                    <div className="w-12 h-12 rounded-xl bg-[#0a4d2c]/5 text-[#0a4d2c] flex items-center justify-center shrink-0">
+                  </motion.div>
+
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex gap-6 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-[#22c55e]/5 text-[#22c55e] flex items-center justify-center shrink-0 group-hover:bg-[#22c55e] group-hover:text-[#0a4d2c] transition-colors">
                       <Phone className="h-6 w-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Telefone / WhatsApp</h4>
-                      <p className="text-gray-600">(12) 99715-0819</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Telefone / WhatsApp</h4>
+                      <p className="text-lg font-bold text-gray-900">(12) 99715-0819</p>
                     </div>
-                  </div>
-                  <div className="flex gap-4 items-center">
-                    <div className="w-12 h-12 rounded-xl bg-[#0a4d2c]/5 text-[#0a4d2c] flex items-center justify-center shrink-0">
+                  </motion.div>
+
+                  <motion.div 
+                    whileHover={{ x: 5 }}
+                    className="flex gap-6 p-6 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-all group"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                       <Mail className="h-6 w-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-lg">Email</h4>
-                      <p className="text-gray-600">contato@sporthealthsjc.com.br</p>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">E-mail Oficial</h4>
+                      <p className="text-lg font-bold text-gray-900">contato@sporthealthsjc.com.br</p>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
 

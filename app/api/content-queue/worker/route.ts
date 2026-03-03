@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/db'
 import OpenAI from 'openai'
 import { injectAds } from '@/lib/adSystem'
+import { pingGoogleSitemap } from '@/lib/googlePing'
 
 // Força execução máxima em ambientes serverless (se Vercel, max 300s no Pro, 10s no Hobby. O ideal é usar fila)
 export const maxDuration = 60; // Configuração Vercel
@@ -176,9 +177,11 @@ REGRAS OBRIGATÓRIAS (SEO E GEO):
           term: title,
           slug: slug,
           definition: finalContent,
-          status: 'DRAFT'
+          status: 'PUBLISHED'
         }
       })
+      // Notify Google for auto-published glossary terms
+      await pingGoogleSitemap()
     }
 
     // 5. Concluir Item na Fila

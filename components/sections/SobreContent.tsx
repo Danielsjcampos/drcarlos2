@@ -78,7 +78,7 @@ export function SobreContent() {
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-5 w-5 text-[#22c55e] shrink-0" />
-                  <span>Formação Internacional em Quiropraxia</span>
+                  <span>Formação em Quiropraxia</span>
                 </li>
               </ul>
             </div>

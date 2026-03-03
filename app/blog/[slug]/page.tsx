@@ -212,7 +212,7 @@ export default function BlogPostReader() {
             {/* Newsletter/Contact Simple */}
             <div className="p-8 bg-slate-50 rounded-[32px] border border-slate-100 flex flex-col items-center text-center">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Contato Oficial</span>
-              <p className="text-xl font-black font-outfit text-slate-900 mb-1">(12) 99123-4567</p>
+              <p className="text-xl font-black font-outfit text-slate-900 mb-1">(12) 99715-0819</p>
               <p className="text-xs text-slate-500 font-medium">São José dos Campos - SP</p>
             </div>
           </aside>
